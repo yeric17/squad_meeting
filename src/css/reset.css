@@ -1,0 +1,31 @@
+* {
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box; 
+}
+
+body,button{
+   font-family: "Karla";
+   font-size: 16px;
+}
+li{
+   list-style: none;
+}
+
+a{
+   text-decoration: none;
+   color: inherit;
+   font-family: inherit;
+   font-weight: inherit;
+}
+
+::-webkit-scrollbar {
+   width: 6px;
+}
+/* ::-webkit-scrollbar-track {
+   background: var(--color-gray-4); 
+} */
+::-webkit-scrollbar-thumb {
+   background: var(--color-blue-gray);
+   border-radius: 6px;
+}

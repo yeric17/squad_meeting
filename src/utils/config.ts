@@ -1,0 +1,1 @@
+export const API_HOST = import.meta.env.VITE_PUBLIC_API_HOST
