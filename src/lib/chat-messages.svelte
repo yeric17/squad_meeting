@@ -52,38 +52,28 @@
                 <div class="message_container">
                     {#if idx > 0 && message.author === messages[idx - 1].author}
                         {#if idx > 0 && isDateEqual(messages[idx - 1].dateCreated,message.dateCreated)}
-                        <MessageCard 
-                        isMine={message.author === currentUserId}
-                        color={message.attributes?JSON.parse(message.attributes.toString()).color:""}
-                        >
-                        {message.body}
-                        </MessageCard>
+                            <MessageCard 
+                            isMine={message.author === currentUserId}
+                            showDate={false}
+                            showName={false}
+                            message={message}/>
                         {:else}
-                        <MessageCard 
-                        createAt={message.dateCreated} 
-                        isMine={message.author === currentUserId}
-                        color={message.attributes?JSON.parse(message.attributes.toString()).color:""}
-                        >
-                        {message.body}
-                        </MessageCard>
+                            <MessageCard 
+                            isMine={message.author === currentUserId}
+                            showName={false}
+                            message={message}/>
                         {/if}
                     {:else if idx > 0 && isDateEqual(messages[idx - 1].dateCreated,message.dateCreated)}
                         <MessageCard 
                         isMine={message.author === currentUserId}
-                        author={message.attributes?JSON.parse(message.attributes.toString()).name:""}
-                        color={message.attributes?JSON.parse(message.attributes.toString()).color:""}
-                        >
-                        {message.body}
-                        </MessageCard>
+                        message={message}
+                        showDate={false}/>
                     {:else}
                         <MessageCard 
-                        createAt={message.dateCreated} 
                         isMine={message.author === currentUserId}
-                        author={message.attributes?JSON.parse(message.attributes.toString()).name:""}
-                        color={message.attributes?JSON.parse(message.attributes.toString()).color:""}
-                        >
-                        {message.body}
-                        </MessageCard>
+                        message={message}
+                        showName={true}
+                        showDate={true}/>
                     {/if}
                 </div>
                 {/each}

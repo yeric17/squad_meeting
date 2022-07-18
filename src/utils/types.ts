@@ -4,3 +4,13 @@ export type User = {
     avatar: string,
     logged_in: boolean
 }
+
+type ReplyMessage = {
+    text:string,
+    messageSid:string,
+}
+
+export type MessageContent = {
+    text: string,
+    replyMessage:ReplyMessage|null,
+}

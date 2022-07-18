@@ -51,7 +51,7 @@
         
         let messages:Message[] = messagesPaginator.items;
 
-        
+        console.log({messages})
         const status:ConversationStatus = conversation.status
         console.log(status)
         if(status !== 'joined'){
@@ -84,6 +84,7 @@
     import PaperclipIcon from "$lib/svg/paperclip-icon.svelte";
     import EmoticonOption from "$lib/emoticon-option.svelte";
     import { slide } from "svelte/transition";
+import DropArea from "$lib/drop-area.svelte";
 
 
    
@@ -103,6 +104,7 @@
     let isLoadingMessages = false;
 
     let emoticonsIsActive = false;
+    let atachmentIsActive = false;
 
     onMount(()=>{
       conversation.on('messageAdded',addMessage )
@@ -205,6 +207,15 @@
 
     function toggleEmoticons(){
         emoticonsIsActive = !emoticonsIsActive;
+        if(emoticonsIsActive){
+            atachmentIsActive = false;
+        }
+    }
+    function toggleAtachments(){
+        atachmentIsActive = !atachmentIsActive;
+        if(atachmentIsActive){
+            emoticonsIsActive = false;
+        }
     }
 </script>
 
@@ -266,7 +277,7 @@
             <span class="chat_option" on:click={toggleEmoticons}>
                 <EmoticonIcon/>
             </span>
-            <span class="chat_option">
+            <span class="chat_option" on:click={toggleAtachments}>
                 <PaperclipIcon/>
             </span>
         </div>
@@ -277,6 +288,13 @@
                 <EmoticonOption on:select-emoticon={handleEmoticons}/>
             </div>
             {/if}
+        </div>
+        {/if}
+        {#if atachmentIsActive}
+        <div class="chat_options_window" class:active={atachmentIsActive} transition:slide>
+            <div class="window_drop">
+                <DropArea conversationTarget={conversation} userName={user.name}/>
+            </div>
         </div>
         {/if}
     </section>
