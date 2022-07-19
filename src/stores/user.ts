@@ -8,10 +8,13 @@ export type AppUser = {
     logged_in: boolean
 }
 
-export const appUser:Writable<AppUser> = writable<AppUser>({
+
+let defaultAppUser:AppUser = {
     id: "",
     name: "",
     email: "",
     avatar: "",
     logged_in: false,
-})
+};
+
+export const appUser = writable(defaultAppUser)

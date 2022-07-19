@@ -1,17 +1,22 @@
 <script context="module" lang="ts">
     import type { Load } from '@sveltejs/kit';
 
-    export const load:Load = async () => {
-        const authResponse = await fetch(`${API_HOST}/auth`, {method:'POST'})
+    export const load:Load = async ({session}) => {
 
-        if(authResponse.ok){
-            const user = await authResponse.json()
-            appUser.set(user)
-            if(user.logged_in){
-                return {
-                    status: httpStatusCode.MovedPermanently,
-                    redirect: "/"
-                }
+        console.log(session)
+        const currentSession:any = session;
+
+        const user = currentSession.user
+
+        if(user == null){
+            return{
+                status: 200,
+            }
+        }
+        if(user.logged_in){
+            return {
+                status: httpStatusCode.Found,
+                redirect: "/",
             }
         }
         return {
@@ -29,11 +34,10 @@
     import InputEmail from "$lib/form/input-email.svelte";
     import InputPassword from "$lib/form/input-password.svelte";
     import Spin from '$lib/spin.svelte';
-
     import { httpStatusCode } from '../utils/http-status-codes';
-    import { API_HOST } from '../utils/config';
-    import { appUser } from '../stores/user';
     import { goto } from '$app/navigation';
+    import type { AppUser } from '../stores/user';
+
 
 
 
@@ -76,8 +80,8 @@
         if(response.ok){
             console.log("goto in login")
             try{
-                // window.location.reload()
-                await goto("/")
+                window.location.reload()
+                //await goto("/")
             }
             catch(err){
                 console.log(err)

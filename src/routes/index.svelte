@@ -1,18 +1,19 @@
 <script context="module" lang="ts">
     import type { Load } from "@sveltejs/kit";
     
-    export const load: Load = async({fetch}) => {
+    export const load: Load = async({fetch, session}) => {
+        
+        const currentSession:any = session;
+        
+        const user = currentSession.user
 
-        const authResponse = await fetch(`${API_HOST}/auth`, {method:'POST'})
-    
-        if(!authResponse.ok){
-            return{
-                status:httpStatusCode.MovedPermanently,
-                redirect: "/login"
+        if(user == null || !user.logged_in){
+            return {
+                status: httpStatusCode.Found,
+                redirect: "/login",
             }
         }
-        const user = await authResponse.json()
-
+        
         const accesTokenResponse = await fetch(`${API_HOST}/access-token?identity=${user.id}`);
         
         if(!accesTokenResponse.ok){
@@ -80,6 +81,7 @@
     import { API_HOST } from "../utils/config";
     import { httpStatusCode } from "../utils/http-status-codes";
     import Spin from "$lib/spin.svelte";
+    import { appUser, type AppUser } from "../stores/user";
 
     export let user:any;
     export let client:Client;
@@ -191,7 +193,7 @@
 </script>
 
 <svelte:head>
-    <title>Iniciar conversacion</title>
+    <title>Iniciar conversacion | {$appUser.name}</title>
 </svelte:head>
 <section class="page_container">
     <header class="header">

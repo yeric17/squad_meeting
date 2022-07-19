@@ -8,16 +8,20 @@
     
 
     export const load:Load = async ({session}) => {
-        const authResponse = await fetch(`${API_HOST}/auth`, {method:'POST'})
+        console.log(session)
+        const currentSession:any = session;
 
-        if(authResponse.ok){
-            const user = await authResponse.json()
+        const user = currentSession.user
 
-            if(user.logged_in){
-                return {
-                    status: httpStatusCode.MovedPermanently,
-                    redirect: "/"
-                }
+        if(user == null){
+            return{
+                status: 200,
+            }
+        }
+        if(user.logged_in){
+            return {
+                status: httpStatusCode.Found,
+                redirect: "/",
             }
         }
         return {

@@ -1,7 +1,9 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { httpStatusCode } from "../../utils/http-status-codes";
 import { supabase, type UserCredentials } from "../../lib/supabase";
-import { appUser} from "../../stores/user";
+import { serialize } from "cookie";
+import { appUser, type AppUser } from "../../stores/user";
+import { handleError } from "../../utils/handler-errors";
 
 
 export const post: RequestHandler = async ({request}) => {
@@ -9,29 +11,46 @@ export const post: RequestHandler = async ({request}) => {
 
     const userLogin : UserCredentials = jsonData;
 
-    const {session} = await supabase.auth.signIn(userLogin)
+    const {session, error} = await supabase.auth.signIn(userLogin)
+    
+    if(error){
+        return handleError(httpStatusCode.Unauthorized, error.message)        
+    }
     
     if(session == null){
-        return {
-            status: httpStatusCode.Unauthorized
-        }
+        return handleError(httpStatusCode.Unauthorized, "Can not create a session for user")  
     }
 
     const user = session.user
     if(user == null){
-        return {
-            status: httpStatusCode.InternalServerError
-        }
+        return handleError(httpStatusCode.InternalServerError, "Can not get a user from session") 
     }
-    appUser.set({
-            id: user.id,
-            name: user.user_metadata.name,
-            email: user.email?user.email:"",
-            avatar: "",
-            logged_in: true
+
+
+    if(session.refresh_token == undefined){
+        return handleError(httpStatusCode.InternalServerError, "Can not get a user refresh token from session") 
+    }
+
+    let headers:Headers = new Headers;
+    headers.append(
+        'set-cookie',
+        serialize('_refresh_token', session.refresh_token,
+        {
+            httpOnly: true,
+            path:"/"
         })
+    )
+    headers.append(
+        'set-cookie',
+        serialize('_access_token', session.access_token,
+        {
+            httpOnly: true,
+            path:"/"
+        })
+    )
     return {
         status: httpStatusCode.Ok,
+        headers: headers
     }
 
 }

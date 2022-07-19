@@ -1,22 +1,20 @@
 <script context="module" lang="ts">
     import type { Load } from "@sveltejs/kit";
 
-    export const load:Load = async ({params, fetch}) => {
+    export const load:Load = async ({params, fetch, session}) => {
 
-        const conversationId = params.conversation_id
+        const currentSession:any = session;
+        
+        const user = currentSession.user
 
-        const authResponse = await fetch(`${API_HOST}/auth`, {method:'POST'})
-    
-        if(!authResponse.ok){
-            return{
-                status:httpStatusCode.MovedPermanently,
-                redirect: "/login"
+        if(user == null || !user.logged_in){
+            return {
+                status: httpStatusCode.Found,
+                redirect: "/",
             }
         }
-
         
-        const user = await authResponse.json()
-        
+        const conversationId = params.conversation_id
         
         const accesTokenResponse = await fetch(`${API_HOST}/access-token?identity=${user.id}`);
         

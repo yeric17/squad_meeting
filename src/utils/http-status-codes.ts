@@ -4,6 +4,7 @@ export const httpStatusCode = {
     Accepted: 202,
     NoContent: 204,
     MovedPermanently: 301,
+    Found: 302,
     BadRequest: 400,
     Unauthorized: 401,
     InternalServerError: 500,
