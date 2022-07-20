@@ -146,13 +146,13 @@
         </button>
     </form>
     <div class="login-with_form">
-        <h4 class="login-with_form_title">
+        <!-- <h4 class="login-with_form_title">
             Ingresar mediante
         </h4>
         <ul class="login-with_providers">
             <li class="providers_item"><button type="submit" class="providers_item_button" data-provider='google' on:click={loginWithGoogle}><img src="/google-button.png" alt="google button"/></button></li>
             <li class="providers_item"><button type="submit" class="providers_item_button" data-provider='github' on:click={loginWithGithub}><img src="/github-button.png" alt="github button"/></button></li>
-        </ul>
+        </ul> -->
     </div>
     <a href="/register" class="login_link">Crear nueva cuenta</a>
     <div class="login_footer">
