@@ -210,9 +210,6 @@
         display: flex;
         cursor: pointer;
     }
-    .providers_item_button:hover{
-        opacity: .6;
-    }
     .providers_item_button img{
         pointer-events: none;
     }
