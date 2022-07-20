@@ -163,8 +163,6 @@
 <style>
     .login-container{
         display: grid;
-        grid-template-columns: auto;
-        grid-template-rows: auto 1fr auto auto auto;
         justify-items: center;
         align-items: start;
         min-height: 100vh;
