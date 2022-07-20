@@ -6,13 +6,6 @@ import { API_HOST } from "../../utils/config"
 import { getSupabaseClient } from "$lib/supabase"
 
 
-
-
-const SUPABASE_URL = import.meta.env.VITE_PUBLIC_SUPABASE_URL
-const SUPABASE_KEY = import.meta.env.VITE_PUBLIC_SUPABASE_KEY
-
-
-
 type UserRegister = {
     name: string,
     email: string,

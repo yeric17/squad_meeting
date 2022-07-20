@@ -48,10 +48,12 @@
         })
         
         const sortedConversations = visibleConversations.sort((a, b) => {
-            if(a.createdBy === user.id){
-                return -1
+            if(a.createdBy === user.id && b.createdBy === user.id){
+                return 0
             }
-            return 1
+            if(a.createdBy === user.id) return 1
+            if(b.createdBy === user.id) return -1
+            return 0
         })
 
         return {
@@ -81,7 +83,7 @@
     import { API_HOST } from "../utils/config";
     import { httpStatusCode } from "../utils/http-status-codes";
     import Spin from "$lib/spin.svelte";
-    import { appUser, type AppUser } from "../stores/user";
+    import { appUser } from "../stores/user";
 
     export let user:any;
     export let client:Client;

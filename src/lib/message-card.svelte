@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { Message,Media } from "@twilio/conversations";
+    import type { Message } from "@twilio/conversations";
     import { onMount } from "svelte";
 
     import { fade } from "svelte/transition";

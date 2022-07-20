@@ -3,11 +3,7 @@
 
     import { API_HOST } from "../utils/config";
     import { clickOutside } from "./click-outside";
-    import UserSquareIcon from "./svg/user-square-icon.svelte";
     import LogoutIcon from "./svg/logout-icon.svelte";
-
-
-    import { supabase } from "./supabase";
 
 
     export let userName:string = "";

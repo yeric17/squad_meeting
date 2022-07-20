@@ -35,7 +35,7 @@
     import Spin from '$lib/spin.svelte';
     import { httpStatusCode } from '../utils/http-status-codes';
     //import { goto } from '$app/navigation';
-    import type { AppUser } from '../stores/user';
+    //import type { AppUser } from '../stores/user';
 
 
 

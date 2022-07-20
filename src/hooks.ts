@@ -1,12 +1,11 @@
-import { getSupabaseClient, supabase } from '$lib/supabase';
+
 import type { GetSession, Handle } from '@sveltejs/kit';
-import { parse, serialize } from 'cookie';
-import { verify, type JwtPayload } from 'jsonwebtoken';
+import { parse } from 'cookie';
+import pkg from 'jsonwebtoken';
 import type { AppUser } from './stores/user';
-import { API_HOST } from './utils/config';
 
 const SUPABASE_JWT = import.meta.env.VITE_PUBLIC_SUPABASE_JWT;
-
+const {verify} = pkg;
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle: Handle = async ({ event, resolve }) => {

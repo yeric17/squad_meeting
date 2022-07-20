@@ -1,8 +1,7 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { httpStatusCode } from "../../utils/http-status-codes";
-import { getSupabaseClient, supabase, type UserCredentials } from "../../lib/supabase";
+import { supabase, type UserCredentials } from "../../lib/supabase";
 import { serialize } from "cookie";
-import { appUser, type AppUser } from "../../stores/user";
 import { handleError } from "../../utils/handler-errors";
 
 
