@@ -1,11 +1,11 @@
 
 import type { GetSession, Handle } from '@sveltejs/kit';
 import { parse } from 'cookie';
-import pkg from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import type { AppUser } from './stores/user';
 
 const SUPABASE_JWT = import.meta.env.VITE_PUBLIC_SUPABASE_JWT;
-const {verify} = pkg;
+const {verify} = jwt;
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle: Handle = async ({ event, resolve }) => {
@@ -20,12 +20,13 @@ export const handle: Handle = async ({ event, resolve }) => {
         avatar: "",
         logged_in: false,
     }
+    //console.log(event.request)
     
-    if(event.url.pathname.startsWith("/api/signout")){
-        console.log(event.request)
+    if(event.url.pathname.startsWith("/api/signout") || event.url.pathname.startsWith("/api/login") && event.request.method === 'POST'){
         const response = await resolve(event);
         return response;
     }
+
 
     const cookie = event.request.headers.get('cookie')
 
@@ -40,7 +41,7 @@ export const handle: Handle = async ({ event, resolve }) => {
                 id: verifiedToken.sub,
                 email: verifiedToken.email,
                 name: verifiedToken.user_metadata.name,
-                avatar: "",
+                avatar: verifiedToken.user_metadata.avatar_url,
                 logged_in: true
             }
 

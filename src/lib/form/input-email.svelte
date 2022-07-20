@@ -17,7 +17,7 @@
 type="text"
 bind:value={value} 
 class="input-text"
-placeholder="Correo eléctronico"
+placeholder="Correo electrónico"
 on:input={Validation}
 class:valid={isValid && value !== ""}
 class:error={!isValid && value !== ""}

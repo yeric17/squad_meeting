@@ -245,7 +245,7 @@ import DropArea from "$lib/drop-area.svelte";
             {/if}
         </div>
         <div class="header_user-info">
-            <Avatar userName={user.name}/>
+            <Avatar userName={user.name} avatar={user.avatar}/>
         </div>
     </header>
     <section class="side-menu_chat">

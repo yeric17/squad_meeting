@@ -4,7 +4,7 @@
     import "$css/reset.css";
     import "$css/variables.css";
     import "$css/buttons.css";
-   // import "../css/fonts.css";
+    import "$css/errors.css";
 
 </script>
 

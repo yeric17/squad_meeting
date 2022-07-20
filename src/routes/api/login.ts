@@ -11,8 +11,8 @@ export const post: RequestHandler = async ({request}) => {
     const userLogin : UserCredentials = jsonData;
 
     const {session, error} = await supabase.auth.signIn(userLogin)
-    
-    if(error){
+
+    if(error != null){
         return handleError(httpStatusCode.Unauthorized, error.message)        
     }
     

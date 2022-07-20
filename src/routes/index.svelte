@@ -51,8 +51,8 @@
             if(a.createdBy === user.id && b.createdBy === user.id){
                 return 0
             }
-            if(a.createdBy === user.id) return 1
-            if(b.createdBy === user.id) return -1
+            if(a.createdBy === user.id) return -1
+            if(b.createdBy === user.id) return 1
             return 0
         })
 
@@ -83,7 +83,6 @@
     import { API_HOST } from "../utils/config";
     import { httpStatusCode } from "../utils/http-status-codes";
     import Spin from "$lib/spin.svelte";
-    import { appUser } from "../stores/user";
 
     export let user:any;
     export let client:Client;
@@ -195,7 +194,7 @@
 </script>
 
 <svelte:head>
-    <title>Iniciar conversacion | {$appUser.name}</title>
+    <title>Iniciar conversacion</title>
 </svelte:head>
 <section class="page_container">
     <header class="header">
@@ -205,6 +204,7 @@
             </div>
             <Avatar
                 userName={user.name}
+                avatar={user.avatar}
                 namePosition="left"
             />
         </div>
@@ -215,7 +215,7 @@
         </span>
     </section>
     <section class="content">
-        <h1 class="content_title">Iniciar conversacion</h1>
+        <h1 class="content_title">Iniciar una conversación</h1>
         <div class="forms">
     
             <form class="init-form" on:submit={handleCreate}>
@@ -238,7 +238,7 @@
                     {#if isLoadingJoin}
                     <Spin/>
                     {:else}
-                    Unirse
+                    Unirse a una
                     {/if}
                 </button>
             </form>

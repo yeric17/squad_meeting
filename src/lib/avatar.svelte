@@ -36,7 +36,7 @@
     {/if}
     <span class="identity_avatar" style={`--color-avatar:${color};`} >
         {#if avatar !== ""}
-        <img src={avatar} alt={userName}>
+        <img class="avatar_image" src={avatar} alt={userName}>
         {:else}
         <span class="avatar_letter">{userName.charAt(0)}</span>
         {/if}
@@ -77,6 +77,9 @@
         position: relative;
         user-select: none;
         cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: .25rem;
     }
     .identity_avatar {
         background-color: var(--color-avatar);
@@ -90,6 +93,11 @@
         font-size: 1.1rem;
         font-weight: 600;
         cursor: pointer;
+    }
+    .avatar_image{
+        max-width: 100%;
+        display: block;
+        border-radius: 50%;
     }
     .identity_name{
         font-weight: 400;
