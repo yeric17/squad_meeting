@@ -22,9 +22,8 @@
     }
 
     async function signOut(){
-        await supabase.auth.signOut()
-        await fetch(`${API_HOST}/signout`)
-        window.location.reload()
+        await fetch(`${API_HOST}/signout`,{method:'POST'})
+        window.location.href = '/login'
     }
     
 

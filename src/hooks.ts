@@ -1,22 +1,19 @@
-import { supabase } from '$lib/supabase';
+import { getSupabaseClient, supabase } from '$lib/supabase';
 import type { GetSession, Handle } from '@sveltejs/kit';
 import { parse, serialize } from 'cookie';
-import { verify } from 'jsonwebtoken';
+import { verify, type JwtPayload } from 'jsonwebtoken';
 import type { AppUser } from './stores/user';
+import { API_HOST } from './utils/config';
 
 const SUPABASE_JWT = import.meta.env.VITE_PUBLIC_SUPABASE_JWT;
+
 
 /** @type {import('@sveltejs/kit').Handle} */
 export const handle: Handle = async ({ event, resolve }) => {
     
     console.log(`request: ${event.request.method}\t| origin:${event.url.origin}\t -> href:${event.url.href}`)
-    const response = await resolve(event);
-
-    return response;
-}
-
-
-export const getSession: GetSession = async (event) =>{
+    
+    
     let sessionUser:AppUser = {
         id: "",
         name: "",
@@ -24,39 +21,54 @@ export const getSession: GetSession = async (event) =>{
         avatar: "",
         logged_in: false,
     }
-
-    // const request = event.request;
-    // const cookie = request.headers.get('cookie')
-
-    // if(cookie == null){
-    //     return {
-    //         user: sessionUser
-    //     }
-    // }
     
-    // const cookieParsed = parse(cookie)
+    if(event.url.pathname.startsWith("/api/signout")){
+        console.log(event.request)
+        const response = await resolve(event);
+        return response;
+    }
 
-    // const accessToken = cookieParsed._access_token;
+    const cookie = event.request.headers.get('cookie')
 
-    const session = supabase.auth.session()
+    if(cookie){
+        const parsedCookie = parse(cookie)
+        const accessToken = parsedCookie._access_token;
 
-    console.log(session)
-    if(session == null || session.user == null){
-        return {
-            user:sessionUser
+        try{
+            const verifiedToken:any = verify(accessToken, SUPABASE_JWT)
+
+            let tempUser = {
+                id: verifiedToken.sub,
+                email: verifiedToken.email,
+                name: verifiedToken.user_metadata.name,
+                avatar: "",
+                logged_in: true
+            }
+
+            sessionUser = tempUser;
+            event.locals.user = sessionUser
+            const response = await resolve(event);
+            return response
+        }
+        catch(err){
+            console.log(err)
         }
     }
-    
-    sessionUser = {
-        id: session.user.id,
-        name: session.user.user_metadata.name,
-        avatar: "",
-        email: session.user.email?session.user.email:"",
-        logged_in: true
-    }
 
+    
+    event.locals.user = sessionUser;
+
+
+  
+    const response = await resolve(event);
+    return response;
+}
+
+
+export const getSession: GetSession = async (event) =>{
+    const sessionUser = event.locals.user;
     return {
-        user:sessionUser
+        user:sessionUser,
     }
 
 }

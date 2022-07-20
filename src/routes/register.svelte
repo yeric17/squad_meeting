@@ -38,9 +38,9 @@
     import InputEmail from "$lib/form/input-email.svelte";
     import InputPassword from "$lib/form/input-password.svelte";
     import InputText from "$lib/form/input-text.svelte";
-    import { goto } from '$app/navigation';
+    //import { goto } from '$app/navigation';
     import { API_HOST } from '../utils/config';
-import { httpStatusCode } from '../utils/http-status-codes';
+    import { httpStatusCode } from '../utils/http-status-codes';
 
 
 
@@ -80,7 +80,7 @@ import { httpStatusCode } from '../utils/http-status-codes';
         })
 
         if(response.ok){
-            await goto("/login")
+            window.location.href = `/login`
         }
         else {
             isValid = false;

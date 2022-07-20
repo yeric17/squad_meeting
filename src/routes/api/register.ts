@@ -1,9 +1,9 @@
 import type { RequestHandler } from "@sveltejs/kit"
-import { createClient } from "@supabase/supabase-js"
 
 import type { UserListInstanceCreateOptions } from "twilio/lib/rest/conversations/v1/user"
 import { httpStatusCode } from "../../utils/http-status-codes"
 import { API_HOST } from "../../utils/config"
+import { getSupabaseClient } from "$lib/supabase"
 
 
 
@@ -11,7 +11,7 @@ import { API_HOST } from "../../utils/config"
 const SUPABASE_URL = import.meta.env.VITE_PUBLIC_SUPABASE_URL
 const SUPABASE_KEY = import.meta.env.VITE_PUBLIC_SUPABASE_KEY
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY)
+
 
 type UserRegister = {
     name: string,
@@ -24,7 +24,7 @@ export const post: RequestHandler = async ({request}) => {
     
     const userRegister : UserRegister = jsonData;
     
-    const { user } = await supabase.auth.signUp(
+    const { user } = await getSupabaseClient().auth.signUp(
         {
             email: userRegister.email,
             password: userRegister.password

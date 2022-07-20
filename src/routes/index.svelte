@@ -76,7 +76,7 @@
     import { rolesSid } from "../utils/roles-sid";
     //import type {UserListInstanceCreateOptions } from "twilio/lib/rest/chat/v1/service/user";
     import type { ConversationInstance } from "twilio/lib/rest/conversations/v1/conversation";
-    import { goto } from "$app/navigation";
+    
     import { getColor } from "$lib/get-color-index";
     import { API_HOST } from "../utils/config";
     import { httpStatusCode } from "../utils/http-status-codes";
@@ -139,7 +139,7 @@
         })
         isLoadingCreate = false;
 
-        await goto(`conversations/${newConversation.sid}`)
+        window.location.href = `conversations/${newConversation.sid}`
         
     }
 
@@ -188,7 +188,7 @@
             return
         }
 
-        await goto(`conversations/${conversation.sid}`)
+        window.location.href = `conversations/${conversation.sid}`
     }
 </script>
 

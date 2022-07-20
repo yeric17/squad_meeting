@@ -3,7 +3,6 @@
 
     export const load:Load = async ({session}) => {
 
-        console.log(session)
         const currentSession:any = session;
 
         const user = currentSession.user
@@ -35,7 +34,7 @@
     import InputPassword from "$lib/form/input-password.svelte";
     import Spin from '$lib/spin.svelte';
     import { httpStatusCode } from '../utils/http-status-codes';
-    import { goto } from '$app/navigation';
+    //import { goto } from '$app/navigation';
     import type { AppUser } from '../stores/user';
 
 

@@ -1,6 +1,6 @@
 import type { RequestHandler } from "@sveltejs/kit"
 import { httpStatusCode } from "../../utils/http-status-codes";
-import { supabase, type UserCredentials } from "../../lib/supabase";
+import { getSupabaseClient, supabase, type UserCredentials } from "../../lib/supabase";
 import { serialize } from "cookie";
 import { appUser, type AppUser } from "../../stores/user";
 import { handleError } from "../../utils/handler-errors";
@@ -32,14 +32,14 @@ export const post: RequestHandler = async ({request}) => {
     }
 
     let headers:Headers = new Headers;
-    headers.append(
-        'set-cookie',
-        serialize('_refresh_token', session.refresh_token,
-        {
-            httpOnly: true,
-            path:"/"
-        })
-    )
+    // headers.append(
+    //     'set-cookie',
+    //     serialize('_refresh_token', session.refresh_token,
+    //     {
+    //         httpOnly: true,
+    //         path:"/"
+    //     })
+    // )
     headers.append(
         'set-cookie',
         serialize('_access_token', session.access_token,
