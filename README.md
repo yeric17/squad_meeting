@@ -6,19 +6,21 @@ Este es un proyecto para participar en la hackathon de twilio para julio del 202
 
 Para poder ejecutar el proyecto es necesario tener una cuenta en twilio, con un servicio de conversación iniciado, a su vez una cuenta en supabase igualmente con un proyecto creado. Después de debe crear un archivo .env con las siguiente estructura:
 
-VITE_PUBLIC_SUPABASE_URL="xxxxx"
-VITE_PUBLIC_SUPABASE_KEY="xxxxx"
+VITE_PUBLIC_SUPABASE_URL="xxxxx"  
+VITE_PUBLIC_SUPABASE_KEY="xxxxx"  
 
-VITE_PUBLIC_ACCOUNT_SID="xxxx"
-VITE_PUBLIC_API_KEY="xxxx"
-VITE_PUBLIC_API_SECRET="xxxx"
-VITE_PUBLIC_SERVICE_SID="xxxx"
-VITE_PUBLIC_AUTH_TOKEN="xxxx"
 
-VITE_PUBLIC_ROLE_CHANNEL_USER="xxxx"
-VITE_PUBLIC_ROLE_CHANNEL_ADMIN="xxxx"
-VITE_PUBLIC_ROLE_SERVICE_USER="xxxx"
-VITE_PUBLIC_ROLE_SERVICE_ADMIN="xxxx"
+VITE_PUBLIC_ACCOUNT_SID="xxxx"  
+VITE_PUBLIC_API_KEY="xxxx"  
+VITE_PUBLIC_API_SECRET="xxxx"  
+VITE_PUBLIC_SERVICE_SID="xxxx"  
+VITE_PUBLIC_AUTH_TOKEN="xxxx"  
+
+
+VITE_PUBLIC_ROLE_CHANNEL_USER="xxxx"  
+VITE_PUBLIC_ROLE_CHANNEL_ADMIN="xxxx"  
+VITE_PUBLIC_ROLE_SERVICE_USER="xxxx"  
+VITE_PUBLIC_ROLE_SERVICE_ADMIN="xxxx"  
 
 
 # create-svelte
