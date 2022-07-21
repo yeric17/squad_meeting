@@ -183,7 +183,8 @@
         transform: translateX(100%);
         border-radius: 4px;
         display: none;
-        min-width: 100px;
+        width: 100px;
+        
         overflow: hidden;
     }
     .message_content.my-message .body_menu{
@@ -217,6 +218,7 @@
         border-left: 2px solid var(--color-orange);
         padding-left: .5rem;
         border-radius: 5px;
+        margin-bottom: .5rem;
     }
     .reply_user-name{
         color: var(--color-gray-4);
@@ -227,6 +229,7 @@
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        color: var(--color-gray-3)
+        color: var(--color-gray-3);
+        
     }
 </style>
