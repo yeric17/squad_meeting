@@ -188,4 +188,8 @@
     .menu_option.delete{
         --color-text: var(--color-red);
     }
+    .body_media img{
+        display: block;
+        max-width: 100%;
+    }
 </style>

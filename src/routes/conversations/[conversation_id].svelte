@@ -83,6 +83,8 @@
     import EmoticonOption from "$lib/emoticon-option.svelte";
     import { slide } from "svelte/transition";
 import DropArea from "$lib/drop-area.svelte";
+import UsersIcon from "$lib/svg/users-icon.svelte";
+import UserAddIcon from "$lib/svg/user-add-icon.svelte";
 
 
    
@@ -249,7 +251,13 @@ import DropArea from "$lib/drop-area.svelte";
         </div>
     </header>
     <section class="side-menu_chat">
-
+        <ul class="side-menu_list">
+            <li class="side-menu_item"><UsersIcon/></li>
+            <li class="side-menu_item"><UserAddIcon/></li>
+        </ul>
+        <div class="side-menu_sub">
+            
+        </div>
     </section>
 
     <ChatMessages messages={messages} currentUserId={user.id} bind:isTopChat={isTopChat} on:scroll={handleChatScroll} ></ChatMessages>
@@ -408,6 +416,7 @@ import DropArea from "$lib/drop-area.svelte";
     }
     .side-menu_chat{
         grid-row: span 3;
+        background-color: var(--color-gray-6);
     }
 
     .chat_options{
@@ -442,5 +451,25 @@ import DropArea from "$lib/drop-area.svelte";
         padding-bottom: 1rem;
         padding-top: 1rem;
     }
-
+    .side-menu_list{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding-top: 1rem;
+    }
+    .side-menu_item{
+        width: 40px;
+        padding: .5rem;
+        cursor: pointer;
+        display: flex;
+        justify-content: center;
+        --color-text: var(--color-blue-gray);
+        border-right: 2px solid transparent;
+        transition: all .3s;
+    }
+    .side-menu_item:hover{
+        background-color: var(--color-blue-gray);
+        border-right: 2px solid var(--color-gray-3);
+        --color-text: white;
+    }
 </style>
