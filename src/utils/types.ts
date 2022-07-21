@@ -1,3 +1,5 @@
+import type { Message } from "@twilio/conversations"
+
 export type User = {
     name: string,
     email: string,
@@ -11,6 +13,8 @@ type ReplyMessage = {
 }
 
 export type MessageContent = {
-    text: string,
-    replyMessage:ReplyMessage|null,
+    body:string,
+    author:string,
+    dateCreated:Date,
+    twilioMessage:Message
 }

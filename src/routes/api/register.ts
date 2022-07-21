@@ -17,27 +17,23 @@ export const post: RequestHandler = async ({request}) => {
     
     const userRegister : UserRegister = jsonData;
     
-    const { user } = await getSupabaseClient().auth.signUp(
+    const { user, error } = await getSupabaseClient().auth.signUp(
         {
             email: userRegister.email,
             password: userRegister.password
         },
         {
             data: {
-                name: userRegister.name
+                user_name: userRegister.name,
+                avatar_url: 'https://i.pravatar.cc/100?img=2'
             }
         }
     )
         
-    if(user == null) return {status: httpStatusCode.BadRequest}
-
+    if(error) return {status: httpStatusCode.BadRequest}
+    console.log(user)
     const newTwilioUser:UserListInstanceCreateOptions = {
-        friendlyName: userRegister.name,
         identity: user?.id || userRegister.email,
-        attributes: JSON.stringify({
-            name: userRegister.name,
-            email: userRegister.email
-        })
     }
 
     

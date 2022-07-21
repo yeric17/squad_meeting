@@ -5,8 +5,8 @@
     import { fade } from "svelte/transition";
 
     import ExcelIcon from "./svg/excel-icon.svelte";
-    import ReplyMessageIcon from "./svg/reply-message-icon.svelte";
-    import TrashIcon from "./svg/trash-icon.svelte";
+    // import ReplyMessageIcon from "./svg/reply-message-icon.svelte";
+    // import TrashIcon from "./svg/trash-icon.svelte";
     export let isMine:boolean = true;
     export let message:Message;
 
@@ -23,16 +23,13 @@
         name: "",
         color: "#FFFFFF",
     }
-    onMount(async ()=>{
+    onMount(async()=>{
 
-        if(message.participantSid){
-            const participant = await message.conversation.getParticipantBySid(message.participantSid)
 
-            if(participant && participant.attributes){
-                attributes = JSON.parse(JSON.stringify(participant.attributes))
-            }
-        }
-        
+        let str = message.attributes?.toString()
+
+        attributes = str == null?"":JSON.parse(str)
+        console.log({attributes})
 
         if(message.attachedMedia && message.attachedMedia.length > 0){
             const categorizedMedia  = message.getMediaByCategory(["media"]);
@@ -50,10 +47,10 @@
         }
     })
 
-    async function handleDelete(){
-        await message.remove()
-        isRemoved = true;
-    }
+    // async function handleDelete(){
+    //     await message.remove()
+    //     isRemoved = true;
+    // }
 
     function getFormatDate(value:Date){
         return value.toLocaleString("es-Es",{
@@ -97,12 +94,12 @@
                 {/if}
             </div>
             {/if}
-            <div class="body_menu">
+            <!-- <div class="body_menu">
                 <ul class="body_menu_list">
                     <li class="menu_option reply"><ReplyMessageIcon/></li>
-                    <li class="menu_option delete" on:click={handleDelete}><TrashIcon/></li>
+                    <li class="menu_option delete" on:click={handleDelete}><TrashIcon/></li> 
                 </ul>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -160,7 +157,7 @@
     .message_author{
         font-size: .9rem;
     }
-    .body_menu{
+    /* .body_menu{
         position: absolute;
         width: 1.5rem;
         padding: .25rem;
@@ -187,7 +184,7 @@
     }
     .menu_option.delete{
         --color-text: var(--color-red);
-    }
+    } */
     .body_media img{
         display: block;
         max-width: 100%;

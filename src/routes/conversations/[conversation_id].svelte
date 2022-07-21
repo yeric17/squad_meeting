@@ -7,6 +7,8 @@
         
         const user = currentSession.user
 
+        console.log(user)
+
         if(user == null || !user.logged_in){
             return {
                 status: httpStatusCode.Found,
@@ -49,6 +51,7 @@
         
         let messages:Message[] = messagesPaginator.items;
 
+
         console.log({messages})
         const status:ConversationStatus = conversation.status
         console.log(status)
@@ -62,6 +65,7 @@
                 messages,
                 user,
                 messagesPaginator,
+                participants
             }
         }
     }
@@ -82,9 +86,12 @@
     import PaperclipIcon from "$lib/svg/paperclip-icon.svelte";
     import EmoticonOption from "$lib/emoticon-option.svelte";
     import { slide } from "svelte/transition";
-import DropArea from "$lib/drop-area.svelte";
-import UsersIcon from "$lib/svg/users-icon.svelte";
-import UserAddIcon from "$lib/svg/user-add-icon.svelte";
+    import DropArea from "$lib/drop-area.svelte";
+    import UsersIcon from "$lib/svg/users-icon.svelte";
+    import UserAddIcon from "$lib/svg/user-add-icon.svelte";
+import AvatarConversation from "$lib/avatar-conversation.svelte";
+import AddUser from "$lib/add-user.svelte";
+
 
 
    
@@ -93,7 +100,7 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
     export let conversation:Conversation;
     export let messages:Message[]=[];
     export let messagesPaginator:Paginator<Message>;
-    //export let participants:Participant[]=[];
+    export let participants:Participant[]=[];
 
     let showChangeNameInput = false;
     let textInput = ""
@@ -105,6 +112,8 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
 
     let emoticonsIsActive = false;
     let atachmentIsActive = false;
+    let showUsers = false;
+    let showAddUser = true;
 
     onMount(()=>{
       conversation.on('messageAdded',addMessage )
@@ -151,7 +160,7 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
         if(textInput === "") return
         //const participant = await conversation.getParticipantByIdentity(user.id)
         const response = await conversation.sendMessage(textInput,JSON.stringify({
-            name: user?.name,
+            name: user.name,
         }))
         console.log(response)
         console.log("send message")
@@ -165,7 +174,7 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
         else if(emoticonsIsActive && event.key === 'Escape') {
             emoticonsIsActive = false;
         }
-        else if(!showChangeNameInput){
+        else if(!showChangeNameInput && !showAddUser){
             document.getElementById('chatMessage')?.focus()
         }
     }
@@ -217,6 +226,18 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
             emoticonsIsActive = false;
         }
     }
+    function toggleShowUsers(){
+        showUsers = !showUsers;
+        if(showUsers){
+            showAddUser = false;
+        }
+    }
+    function toggleShowAddUsers(){
+        showAddUser = !showAddUser;
+        if(showAddUser){
+            showUsers = false;
+        }
+    }
 </script>
 
 <svelte:head>
@@ -252,11 +273,20 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
     </header>
     <section class="side-menu_chat">
         <ul class="side-menu_list">
-            <li class="side-menu_item"><UsersIcon/></li>
-            <li class="side-menu_item"><UserAddIcon/></li>
+            <li class="side-menu_item" class:active={showUsers} on:click={toggleShowUsers}><UsersIcon/></li>
+            <!-- <li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}><UserAddIcon/></li> -->
         </ul>
         <div class="side-menu_sub">
-            
+            {#if showUsers}
+                {#each participants as participant}
+                    <ul class="side-menu_sub_users">
+                        <li class="sub_user"><AvatarConversation participant={participant}/></li>
+                    </ul>
+                {/each}
+            {/if}
+            {#if showAddUser}
+                <span></span>
+            {/if}
         </div>
     </section>
 
@@ -417,6 +447,8 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
     .side-menu_chat{
         grid-row: span 3;
         background-color: var(--color-gray-6);
+        display: grid;
+        grid-template-columns: auto auto;
     }
 
     .chat_options{
@@ -456,20 +488,39 @@ import UserAddIcon from "$lib/svg/user-add-icon.svelte";
         flex-direction: column;
         align-items: center;
         padding-top: 1rem;
+        border-right: 1px solid var(--color-gray-5);
     }
     .side-menu_item{
-        width: 40px;
         padding: .5rem;
+        padding-left: 1.5rem;
+        height: 2rem;
+        width: 100%;
         cursor: pointer;
         display: flex;
         justify-content: center;
         --color-text: var(--color-blue-gray);
         border-right: 2px solid transparent;
         transition: all .3s;
+        opacity: .6;
+    }
+    .side-menu_item.active{
+        --color-text: var(--color-dark-purple);
+        border-right: 2px solid var(--color-dark-purple);
     }
     .side-menu_item:hover{
         background-color: var(--color-blue-gray);
         border-right: 2px solid var(--color-gray-3);
         --color-text: white;
+    }
+    .side-menu_sub{
+        border-right: 1px solid var(--color-gray-5);
+    }
+    .side-menu_sub_users{
+        padding-left: .5rem;
+        padding-right: .5rem;
+    }
+    .sub_user{
+        display: block;
+        margin-top: .5rem;
     }
 </style>

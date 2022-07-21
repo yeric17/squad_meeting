@@ -6,7 +6,7 @@
         const currentSession:any = session;
         
         const user = currentSession.user
-
+        console.log(user)
         if(user == null || !user.logged_in){
             return {
                 status: httpStatusCode.Found,
@@ -121,11 +121,6 @@
         const newParticipant = {
             participant:{
                 identity: user.id,
-                attributes: JSON.stringify({
-                    name: user.name,
-                    email: user.email,
-                    color: getColor(0)
-                }),
                 roleSid: rolesSid.channelAdmin
             },
             conversationSid:newConversation.sid
@@ -171,11 +166,6 @@
                 participant:{
                     identity: user.id,
                     roleSid: rolesSid.channelUser,
-                    attributes: JSON.stringify({
-                        color: getColor(listConversations.items.length - 1),
-                        name: user.name,
-                        email: user.email
-                    })
                 },
                 conversationSid: conversation.sid
             })

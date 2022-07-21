@@ -1,4 +1,5 @@
 
+import { supabase } from '$lib/supabase';
 import type { GetSession, Handle } from '@sveltejs/kit';
 import { parse } from 'cookie';
 import jwt from 'jsonwebtoken';
@@ -36,17 +37,31 @@ export const handle: Handle = async ({ event, resolve }) => {
 
         try{
             const verifiedToken:any = verify(accessToken, SUPABASE_JWT)
-
-            let tempUser = {
-                id: verifiedToken.sub,
-                email: verifiedToken.email,
-                name: verifiedToken.user_metadata.name,
-                avatar: verifiedToken.user_metadata.avatar_url,
-                logged_in: true
+            
+            let {data} = await supabase.from('profiles').select().eq('id',verifiedToken.sub)
+            let tempUser = {id:"",email:"",name:"",avatar:"",logged_in:false}
+            if(data && data.length > 0){
+                let supaUser = data[0]
+                tempUser = {
+                    id: supaUser.id,
+                    email: supaUser.email,
+                    name: supaUser.user_name,
+                    avatar: supaUser.avatar_url,
+                    logged_in: true
+                }
             }
-
+            else {
+                tempUser = {
+                    id: verifiedToken.sub,
+                    email: verifiedToken.email,
+                    name: verifiedToken.user_metadata.user_name,
+                    avatar: verifiedToken.user_metadata.avatar_url,
+                    logged_in: true
+                }
+            }
             sessionUser = tempUser;
             event.locals.user = sessionUser
+
             const response = await resolve(event);
             return response
         }

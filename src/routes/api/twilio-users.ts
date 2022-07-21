@@ -2,6 +2,7 @@ import type { RequestHandler } from "@sveltejs/kit";
 import { httpStatusCode } from "../../utils/http-status-codes";
 import type { UserListInstanceCreateOptions } from "twilio/lib/rest/conversations/v1/user";
 import { twilioClient, TWILIO_SERVICE_SID } from "../../lib/twilio-client";
+import { rolesSid } from "../../utils/roles-sid";
 
 
 export const post:RequestHandler = async ({request}) => {
@@ -15,9 +16,8 @@ export const post:RequestHandler = async ({request}) => {
     }
 
     const userCreateOptions: UserListInstanceCreateOptions = {
-        identity: jsonData.id,
-        friendlyName: jsonData.friendlyName,
-        attributes: JSON.stringify(jsonData.attributes),
+        identity: jsonData.identity,
+        roleSid: rolesSid.channelAdmin
     }
     let user;
     try {
