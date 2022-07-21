@@ -58,7 +58,10 @@
         isRemoved = true;
     }
 
-
+    function handleReply(){
+        console.log('reply from message')
+        dispacher('reply', message)
+    }
     function getFormatDate(value:Date){
         return value.toLocaleString("es-Es",{
                 timeZone:'America/Bogota',
@@ -84,9 +87,16 @@
             {/if}
         </div>
         <div class="message_body" style={`--color-body:${attributes.color}`}>
-            <span class="body_reply">
-
-            </span>
+            {#if attributes.reply}
+            <a href="#{attributes.reply.sid}" class="reply_info">
+                <span class="reply_user-name">
+                    {attributes.name}    
+                </span>
+                <span class="reply_body">
+                    {attributes.reply.body}
+                </span>
+            </a>
+            {/if}
             <span class="body_text">
                 {message.body}
             </span>
@@ -103,7 +113,7 @@
             {/if}
             <div class="body_menu">
                 <ul class="body_menu_list">
-                    <!-- <li class="menu_option" on:click={handleReply}>responder</li> -->
+                    <li class="menu_option" on:click={handleReply}>responder</li>
                    {#if showAdminOptions} <li class="menu_option" on:click={handleDelete}>eliminar</li>{/if}
                 </ul>
             </div>
@@ -199,5 +209,24 @@
     .body_media img{
         display: block;
         max-width: 100%;
+    }
+    .reply_info{
+        display: block;
+        background-color: var(--color-gray-6);
+        padding: .5rem;
+        border-left: 2px solid var(--color-orange);
+        padding-left: .5rem;
+        border-radius: 5px;
+    }
+    .reply_user-name{
+        color: var(--color-gray-4);
+    }
+    .reply_body{
+        display: inline-flex;
+        max-width: 150px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        color: var(--color-gray-3)
     }
 </style>

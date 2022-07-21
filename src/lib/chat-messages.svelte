@@ -46,6 +46,11 @@
         isTopChat = node.scrollTop < 1;
         dispacher('scroll', event)
     }
+
+    function handleReply(event:CustomEvent){
+        console.log('reply from message')
+        dispacher('reply',event.detail)
+    }
 </script>
     <section class="chat_messages" id="chatMessages" on:scroll={scrollHandler}>
         <div class="chat_message_wrapper">
@@ -58,27 +63,31 @@
                             showDate={false}
                             showName={false}
                             message={message}
-                            showAdminOptions={showAdminOptions}/>
+                            showAdminOptions={showAdminOptions}
+                            on:reply={handleReply}/>
                         {:else}
                             <MessageCard 
                             isMine={message.author === currentUserId}
                             showName={false}
                             message={message}
-                            showAdminOptions={showAdminOptions}/>
+                            showAdminOptions={showAdminOptions}
+                            on:reply={handleReply}/>
                         {/if}
                     {:else if idx > 0 && isDateEqual(messages[idx - 1].dateCreated,message.dateCreated)}
                         <MessageCard 
                         isMine={message.author === currentUserId}
                         message={message}
                         showDate={false}
-                        showAdminOptions={showAdminOptions}/>
+                        showAdminOptions={showAdminOptions}
+                        on:reply={handleReply}/>
                     {:else}
                         <MessageCard 
                         isMine={message.author === currentUserId}
                         message={message}
                         showName={true}
                         showDate={true}
-                        showAdminOptions={showAdminOptions}/>
+                        showAdminOptions={showAdminOptions}
+                        on:reply={handleReply}/>
                     {/if}
                 </div>
                 {/each}
@@ -128,4 +137,6 @@
     .button_bottom_chat:hover{
         opacity: .7;
     }
+
+
 </style>

@@ -89,9 +89,9 @@
     import DropArea from "$lib/drop-area.svelte";
     import UsersIcon from "$lib/svg/users-icon.svelte";
 
-import AvatarConversation from "$lib/avatar-conversation.svelte";
+    import AvatarConversation from "$lib/avatar-conversation.svelte";
 
-import { supabase } from "$lib/supabase";
+    import { supabase } from "$lib/supabase";
 
 
 
@@ -116,6 +116,8 @@ import { supabase } from "$lib/supabase";
     let atachmentIsActive = false;
     let showUsers = false;
     let showAddUser = false;
+    let replyMessage:Message|null = null;
+    let replyAttributes:any|null = null;
 
     onMount(()=>{
       conversation.on('messageAdded',addMessage )
@@ -160,11 +162,21 @@ import { supabase } from "$lib/supabase";
     async function handleSubmit(event:Event) {
         event.preventDefault()
         if(textInput === "") return
-        //const participant = await conversation.getParticipantByIdentity(user.id)
-        const response = await conversation.sendMessage(textInput,JSON.stringify({
-            name: user.name,
-        }))
-        console.log(response)
+        if(replyMessage == null){
+            await conversation.sendMessage(textInput,JSON.stringify({
+                name: user.name,
+            }))
+        }
+        else {
+            await conversation.sendMessage(textInput,JSON.stringify({
+                name: user.name,
+                reply: {
+                    body: replyMessage.body,
+                    sid: replyMessage.sid
+                }
+            }))
+        }
+        replyMessage = null;
         console.log("send message")
         textInput = ""
     }
@@ -240,6 +252,14 @@ import { supabase } from "$lib/supabase";
             showUsers = false;
         }
     }
+    function handleReply(event:CustomEvent){
+        console.log(event)
+        replyMessage = event.detail
+        if(replyMessage == null) return;
+        const attr = replyMessage.attributes?.toString()
+        if(attr == null) return;
+        replyAttributes = JSON.parse(attr);
+    }
 
 </script>
 
@@ -303,6 +323,7 @@ import { supabase } from "$lib/supabase";
     bind:isTopChat={isTopChat} 
     on:scroll={handleChatScroll}
     showAdminOptions={user.id === conversation.createdBy}
+    on:reply={handleReply}
     ></ChatMessages>
     
     <section class="chat_controls">
@@ -312,15 +333,27 @@ import { supabase } from "$lib/supabase";
             </div>
         {/if}
         <form on:submit={handleSubmit} class="chat_form_text">
-            <input 
-            type="text" 
-            on:keydown={handleInputChat} 
-            bind:value={textInput} 
-            class="chat_input" 
-            name="chat" 
-            id="chatMessage" 
-            placeholder="Escribe el nuevo mensaje" />
-            <button class="button_send" on:click={handleSubmit}><SendIcon/></button>
+            {#if replyMessage}
+            <div class="reply_info">
+                <span class="reply_user-name">
+                    {replyAttributes.name}    
+                </span>
+                <span class="reply_body">
+                    {replyMessage.body}
+                </span>
+            </div>
+            {/if}
+            <div class="chat_form_text_controls">                
+                <input 
+                type="text" 
+                on:keydown={handleInputChat} 
+                bind:value={textInput} 
+                class="chat_input" 
+                name="chat" 
+                id="chatMessage" 
+                placeholder="Escribe el nuevo mensaje" />
+                <button class="button_send" on:click={handleSubmit}><SendIcon/></button>
+            </div>
         </form>
         <div class="chat_options">
             <span class="chat_option" on:click={toggleEmoticons}>
@@ -396,14 +429,18 @@ import { supabase } from "$lib/supabase";
         border: 1px solid var(--color-purple);
     }
     .chat_form_text{
+        padding-right: .5rem;
+        padding-left: .5rem;
+        background-color: var(--color-gray-6);
+        padding-top: .5rem;
+        display: grid;
+        gap: .5rem;
+    }
+    .chat_form_text_controls{
         display: flex;
         gap:.3rem;
-        padding-left: .5rem;
-        padding-right: .5rem;
-        padding-top: 1rem;
         padding-bottom: .5rem;
         align-items: center;
-        background-color: var(--color-gray-6);
        
     }
     .button_send{
@@ -535,5 +572,20 @@ import { supabase } from "$lib/supabase";
     .sub_user{
         display: block;
         margin-top: .5rem;
+    }
+    .reply_info{
+        border-left: 2px solid var(--color-orange);
+        padding-left: .5rem;
+    }
+    .reply_user-name{
+        color: var(--color-gray-4);
+    }
+    .reply_body{
+        display: inline-flex;
+        max-width: 150px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        color: var(--color-gray-3)
     }
 </style>
