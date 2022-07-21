@@ -1,39 +1,24 @@
 <script lang="ts">
-    import type { Participant } from "@twilio/conversations";
-    import { onMount } from "svelte";
-    import { supabase } from "./supabase";
 
-    export let participant:Participant;
 
-    let loading = true;
+    export let participant:any;
+    export let isOwner = false;
 
-    let user:any ={
-        user_name:"",
-        avatar:""
-    };
-    onMount( async()=>{
-        const {data, error} = await supabase.from('profiles').select().eq('id',participant.identity)
 
-        if(data && data.length > 0){
-            user = data[0]
-            console.log(user)
-        }
-        loading = false
-    })
+
 
 </script>
 
 
 
 <div class="avatar">
-    {#if !loading}
     <span class="avatar_image">
-        <img src={user.avatar_url} alt="avatar">
+        <img src={participant.avatar_url} alt="avatar">
     </span>
     <span class="avatar_name">
-        {user.user_name}
+        <span>{participant.user_name}</span>
+       {#if isOwner}<span class="avatar_role">admin</span>{/if}
     </span>
-    {/if}
 </div>
 
 <style>
@@ -41,6 +26,7 @@
         display: flex;
         align-items: center;
         justify-content: flex-start;
+        align-items: center;
         gap: 1rem;
         padding: .5rem;
         background-color: rgba(0,0,0,.1);
@@ -49,10 +35,12 @@
     .avatar_name{
         font-size: .9rem;
         max-width: 150px;
+        display: flex;
+        flex-direction: column;
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
-        display: block;
+
         color: var(--color-dark-purple);
         font-weight: 600;
     }
@@ -61,4 +49,8 @@
         border-radius: 30px;
         border: 1px solid var(--color-blue-gray);
     }
+    .avatar_role{
+        color: var(--color-sea-blue);
+    }
+
 </style>

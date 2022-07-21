@@ -1,6 +1,6 @@
 
 <script lang="ts">
-    import type { Message } from "@twilio/conversations";
+    import type { Conversation, Message } from "@twilio/conversations";
     import { createEventDispatcher, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import MessageCard from "./message-card.svelte";
@@ -14,6 +14,7 @@
 
     export let currentUserId:string = ""
     export let messages:Message[] = []
+    export let showAdminOptions:boolean = false;
     
     function isDateEqual(date1:Date | null, date2:Date | null):boolean{
         if(date1 == null) return true;
@@ -56,24 +57,28 @@
                             isMine={message.author === currentUserId}
                             showDate={false}
                             showName={false}
-                            message={message}/>
+                            message={message}
+                            showAdminOptions={showAdminOptions}/>
                         {:else}
                             <MessageCard 
                             isMine={message.author === currentUserId}
                             showName={false}
-                            message={message}/>
+                            message={message}
+                            showAdminOptions={showAdminOptions}/>
                         {/if}
                     {:else if idx > 0 && isDateEqual(messages[idx - 1].dateCreated,message.dateCreated)}
                         <MessageCard 
                         isMine={message.author === currentUserId}
                         message={message}
-                        showDate={false}/>
+                        showDate={false}
+                        showAdminOptions={showAdminOptions}/>
                     {:else}
                         <MessageCard 
                         isMine={message.author === currentUserId}
                         message={message}
                         showName={true}
-                        showDate={true}/>
+                        showDate={true}
+                        showAdminOptions={showAdminOptions}/>
                     {/if}
                 </div>
                 {/each}

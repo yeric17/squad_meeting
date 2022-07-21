@@ -3,8 +3,10 @@
     import { onMount } from "svelte";
 
     import { fade } from "svelte/transition";
+    import { createEventDispatcher } from "svelte";
 
     import ExcelIcon from "./svg/excel-icon.svelte";
+
     // import ReplyMessageIcon from "./svg/reply-message-icon.svelte";
     // import TrashIcon from "./svg/trash-icon.svelte";
     export let isMine:boolean = true;
@@ -12,12 +14,17 @@
 
     export let showDate:boolean = true;
     export let showName:boolean = false;
+    export let showAdminOptions:boolean = false;
 
     let hasMedia = false;
     let messageMediaURL:string = "";
     let isImage = false;
     let isExcel = false;
     let isRemoved = false;
+
+    
+
+    const dispacher = createEventDispatcher()
 
     let attributes:any = {
         name: "",
@@ -29,7 +36,6 @@
         let str = message.attributes?.toString()
 
         attributes = str == null?"":JSON.parse(str)
-        console.log({attributes})
 
         if(message.attachedMedia && message.attachedMedia.length > 0){
             const categorizedMedia  = message.getMediaByCategory(["media"]);
@@ -47,10 +53,11 @@
         }
     })
 
-    // async function handleDelete(){
-    //     await message.remove()
-    //     isRemoved = true;
-    // }
+    async function handleDelete(){
+        await message.remove()
+        isRemoved = true;
+    }
+
 
     function getFormatDate(value:Date){
         return value.toLocaleString("es-Es",{
@@ -94,12 +101,12 @@
                 {/if}
             </div>
             {/if}
-            <!-- <div class="body_menu">
+            <div class="body_menu">
                 <ul class="body_menu_list">
-                    <li class="menu_option reply"><ReplyMessageIcon/></li>
-                    <li class="menu_option delete" on:click={handleDelete}><TrashIcon/></li> 
+                    <!-- <li class="menu_option" on:click={handleReply}>responder</li> -->
+                   {#if showAdminOptions} <li class="menu_option" on:click={handleDelete}>eliminar</li>{/if}
                 </ul>
-            </div> -->
+            </div>
         </div>
     </div>
 </div>
@@ -157,34 +164,38 @@
     .message_author{
         font-size: .9rem;
     }
-    /* .body_menu{
+    .body_menu{
         position: absolute;
-        width: 1.5rem;
-        padding: .25rem;
         display: flex;
         flex-direction: column;
-        gap: .1rem;
         top: 0;
         right: 0;
         transform: translateX(100%);
-        background-color: var(--color-gray-6);
         border-radius: 4px;
         display: none;
+        min-width: 100px;
+        overflow: hidden;
     }
     .message_content.my-message .body_menu{
         left: 0;
         transform: translateX(-100%);
     }
     .message_body:hover .body_menu{
-        display: block;
+        display: flex;
+    }
+    .body_menu_list{
+        background-color: var(--color-gray-6);
     }
     .menu_option{
-        --color-text: var(--color-gray-2);
+        padding: .25rem;
+        color: var(--color-gray-1);
         cursor: pointer;
+        display: flex;
+        width: auto;
     }
-    .menu_option.delete{
-        --color-text: var(--color-red);
-    } */
+    .menu_option:hover{
+        background-color: var(--color-gray-4);
+    }
     .body_media img{
         display: block;
         max-width: 100%;

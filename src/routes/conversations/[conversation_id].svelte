@@ -7,7 +7,6 @@
         
         const user = currentSession.user
 
-        console.log(user)
 
         if(user == null || !user.logged_in){
             return {
@@ -31,12 +30,15 @@
         const conversation = await client.getConversationBySid(conversationId)
 
         const participants:Participant[] = await conversation.getParticipants()
-
+        const supabseParticipants:any[] = []
         let userIsParticipant = false;
         for(let participant of participants){
             if(participant.identity === user.id){
                 userIsParticipant = true;
-                break;
+            }
+            let {data,error} = await supabase.from('profiles').select().eq('id',participant.identity)
+            if(error == null && data !== null){
+                supabseParticipants.push(data[0])
             }
         }
 
@@ -51,10 +53,8 @@
         
         let messages:Message[] = messagesPaginator.items;
 
-
-        console.log({messages})
         const status:ConversationStatus = conversation.status
-        console.log(status)
+
         if(status !== 'joined'){
             await conversation.join()
         }
@@ -65,7 +65,7 @@
                 messages,
                 user,
                 messagesPaginator,
-                participants
+                supabseParticipants
             }
         }
     }
@@ -88,9 +88,10 @@
     import { slide } from "svelte/transition";
     import DropArea from "$lib/drop-area.svelte";
     import UsersIcon from "$lib/svg/users-icon.svelte";
-    import UserAddIcon from "$lib/svg/user-add-icon.svelte";
+
 import AvatarConversation from "$lib/avatar-conversation.svelte";
-import AddUser from "$lib/add-user.svelte";
+
+import { supabase } from "$lib/supabase";
 
 
 
@@ -100,7 +101,8 @@ import AddUser from "$lib/add-user.svelte";
     export let conversation:Conversation;
     export let messages:Message[]=[];
     export let messagesPaginator:Paginator<Message>;
-    export let participants:Participant[]=[];
+    // export let participants:Participant[]=[];
+    export let supabseParticipants:any[]=[];
 
     let showChangeNameInput = false;
     let textInput = ""
@@ -113,7 +115,7 @@ import AddUser from "$lib/add-user.svelte";
     let emoticonsIsActive = false;
     let atachmentIsActive = false;
     let showUsers = false;
-    let showAddUser = true;
+    let showAddUser = false;
 
     onMount(()=>{
       conversation.on('messageAdded',addMessage )
@@ -238,6 +240,7 @@ import AddUser from "$lib/add-user.svelte";
             showUsers = false;
         }
     }
+
 </script>
 
 <svelte:head>
@@ -276,11 +279,15 @@ import AddUser from "$lib/add-user.svelte";
             <li class="side-menu_item" class:active={showUsers} on:click={toggleShowUsers}><UsersIcon/></li>
             <!-- <li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}><UserAddIcon/></li> -->
         </ul>
-        <div class="side-menu_sub">
+        <div class="side-menu_sub" class:active={showUsers || showAddUser}>
             {#if showUsers}
-                {#each participants as participant}
+                {#each supabseParticipants as participant}
                     <ul class="side-menu_sub_users">
-                        <li class="sub_user"><AvatarConversation participant={participant}/></li>
+                        <li class="sub_user">
+                            <AvatarConversation 
+                            participant={participant} isOwner={participant.id === conversation.createdBy} 
+                            />
+                        </li>
                     </ul>
                 {/each}
             {/if}
@@ -290,7 +297,13 @@ import AddUser from "$lib/add-user.svelte";
         </div>
     </section>
 
-    <ChatMessages messages={messages} currentUserId={user.id} bind:isTopChat={isTopChat} on:scroll={handleChatScroll} ></ChatMessages>
+    <ChatMessages 
+    messages={messages} 
+    currentUserId={user.id} 
+    bind:isTopChat={isTopChat} 
+    on:scroll={handleChatScroll}
+    showAdminOptions={user.id === conversation.createdBy}
+    ></ChatMessages>
     
     <section class="chat_controls">
         {#if typingUser}
@@ -512,7 +525,7 @@ import AddUser from "$lib/add-user.svelte";
         border-right: 2px solid var(--color-gray-3);
         --color-text: white;
     }
-    .side-menu_sub{
+    .side-menu_sub.active{
         border-right: 1px solid var(--color-gray-5);
     }
     .side-menu_sub_users{
