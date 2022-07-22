@@ -7,10 +7,6 @@ export type User = {
     logged_in: boolean
 }
 
-type ReplyMessage = {
-    text:string,
-    messageSid:string,
-}
 
 export type MessageContent = {
     body:string,

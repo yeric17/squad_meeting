@@ -1,10 +1,11 @@
 
 <script lang="ts">
-    import type { Conversation, Message } from "@twilio/conversations";
+    import { messageList } from "../stores/messages";
     import { createEventDispatcher, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import MessageCard from "./message-card.svelte";
     import ArrowDownIcon from "./svg/arrow-down-icon.svelte";
+    
 
     const dispacher = createEventDispatcher()
 
@@ -13,7 +14,6 @@
     export let isTopChat = false;
 
     export let currentUserId:string = ""
-    export let messages:Message[] = []
     export let showAdminOptions:boolean = false;
     
     function isDateEqual(date1:Date | null, date2:Date | null):boolean{
@@ -54,10 +54,10 @@
 </script>
     <section class="chat_messages" id="chatMessages" on:scroll={scrollHandler}>
         <div class="chat_message_wrapper">
-            {#each messages as message, idx}
+            {#each $messageList as message, idx}
                 <div class="message_container">
-                    {#if idx > 0 && message.author === messages[idx - 1].author}
-                        {#if idx > 0 && isDateEqual(messages[idx - 1].dateCreated,message.dateCreated)}
+                    {#if idx > 0 && message.author === $messageList[idx - 1].author}
+                        {#if idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)}
                             <MessageCard 
                             isMine={message.author === currentUserId}
                             showDate={false}
@@ -73,7 +73,7 @@
                             showAdminOptions={showAdminOptions}
                             on:reply={handleReply}/>
                         {/if}
-                    {:else if idx > 0 && isDateEqual(messages[idx - 1].dateCreated,message.dateCreated)}
+                    {:else if idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)}
                         <MessageCard 
                         isMine={message.author === currentUserId}
                         message={message}

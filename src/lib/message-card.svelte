@@ -6,6 +6,7 @@
     import { createEventDispatcher } from "svelte";
 
     import ExcelIcon from "./svg/excel-icon.svelte";
+import Avatar from "./avatar.svelte";
 
     // import ReplyMessageIcon from "./svg/reply-message-icon.svelte";
     // import TrashIcon from "./svg/trash-icon.svelte";
@@ -29,6 +30,7 @@
     let attributes:any = {
         name: "",
         color: "#FFFFFF",
+        avatar_url: ""
     }
     onMount(async()=>{
 
@@ -80,6 +82,9 @@
     <div class="message_content" class:my-message={isMine}>
         <div class="message_info">
             {#if !isMine && showName}
+            <span class="message_avatar">
+                <Avatar avatar_url={attributes.avatar_url}/>
+            </span>
             <span class="message_author">{attributes.name}</span>
             {/if}
             {#if showDate && message.dateCreated}
@@ -159,13 +164,18 @@
     .message_date {
         font-size: .7rem;
         font-weight: 300;
+        grid-column-start: 2;
+        grid-row-start: 2;
     }
     .message_info{
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
         gap:.3rem;
         padding-bottom: .3rem;
+    }
+    .message_avatar{
+        grid-row: span 2;
     }
 
     .message_content.my-message .message_info{

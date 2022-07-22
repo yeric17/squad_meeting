@@ -1,0 +1,80 @@
+<script>
+	import LogoutIcon from './svg/logout-icon.svelte';
+	import UserSquareIcon from './svg/user-square-icon.svelte';
+	import { fade } from 'svelte/transition';
+	import { API_HOST } from '../utils/config';
+	export let showMenu = false;
+
+	async function signOut() {
+		await fetch(`${API_HOST}/signout`, { method: 'POST' });
+		window.location.href = '/login';
+	}
+</script>
+
+{#if showMenu}
+	<div class="menu" transition:fade={{ duration: 100 }}>
+		<ul class="menu_list">
+			<li class="menu_item">
+				<button on:click={signOut}>
+					<span class="menu_item_icon">
+						<LogoutIcon />
+					</span>
+					<span class="menu_item_text"> Cerrar sesión </span>
+				</button>
+			</li>
+			<li class="menu_item">
+				<button href="/profile">
+					<span class="menu_item_icon">
+						<UserSquareIcon />
+					</span>
+					<span class="menu_item_text"> Perfil </span>
+				</button>
+			</li>
+		</ul>
+	</div>
+{/if}
+
+<style>
+	.menu {
+		position: absolute;
+		right: 0;
+		bottom: -0.6rem;
+		transform: translateY(100%);
+		background-color: var(--color-gray-6);
+		min-width: 150px;
+		border-bottom-left-radius: 4px;
+		border-bottom-right-radius: 4px;
+		z-index: 100;
+		overflow: hidden;
+	}
+	.menu_list {
+		width: 100%;
+	}
+	.menu_item {
+		display: block;
+
+		width: 100%;
+	}
+	.menu_item button {
+		color: var(--color-text);
+		border: none;
+		display: flex;
+		background-color: transparent;
+		width: 100%;
+		cursor: pointer;
+		padding: 0.5rem;
+		text-align: left;
+		font-size: 0.8rem;
+		align-items: center;
+		gap: 0.5rem;
+	}
+	.menu_item button:hover {
+		--color-text: white;
+		background-color: var(--color-soft-purple);
+		color: var(--color-text);
+	}
+	.menu_item_icon {
+		width: 1rem;
+		height: 1rem;
+	}
+</style>

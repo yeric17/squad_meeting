@@ -72,7 +72,7 @@
     import SquadMeetingLogo from "$lib/svg/squad-meeting-logo.svelte";
     import SquadMeetingText from "$lib/svg/squad-meeting-text.svelte";
     import InputText from "$lib/form/input-text.svelte";
-    import Avatar from "$lib/avatar.svelte";
+    import Avatar from "$lib/avatar-header.svelte";
     import ConversationList from "$lib/conversation-list.svelte";
     import {Client, Conversation, Participant, type CreateConversationOptions, type Paginator} from '@twilio/conversations'
     import { rolesSid } from "../utils/roles-sid";

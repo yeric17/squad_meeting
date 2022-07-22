@@ -7,4 +7,7 @@
     path{
         fill: var(--color-text);
     }
+    svg{
+        max-width: 100%;
+    }
 </style>

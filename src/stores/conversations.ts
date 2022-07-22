@@ -1,6 +1,7 @@
 
+import { Conversation } from "@twilio/conversations";
 import { writable } from "svelte/store";
 
-export const activeConversation = writable({
-    sid:""
-})
+let newConversation:Conversation = Conversation.prototype
+
+export const activeConversation = writable(newConversation)

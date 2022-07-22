@@ -4,6 +4,7 @@ import type { UserListInstanceCreateOptions } from "twilio/lib/rest/conversation
 import { httpStatusCode } from "../../utils/http-status-codes"
 import { API_HOST } from "../../utils/config"
 import { getSupabaseClient } from "$lib/supabase"
+import { getRandomAvatar } from "../../utils/user-theme"
 
 
 type UserRegister = {
@@ -25,7 +26,7 @@ export const post: RequestHandler = async ({request}) => {
         {
             data: {
                 user_name: userRegister.name,
-                avatar_url: 'https://i.pravatar.cc/100?img=2'
+                avatar_url: getRandomAvatar()
             }
         }
     )

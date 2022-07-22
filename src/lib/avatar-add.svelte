@@ -12,7 +12,7 @@
 <div class="avatar">
 
     <span class="avatar_image">
-        <img src={user.avatar_url} alt="avatar">
+        <img src={user.avatar_url?user.avatar_url:''} alt="avatar">
     </span>
     <span class="avatar_name">
         {user.user_name}

@@ -1,20 +1,15 @@
 <script lang="ts">
-
+    import Avatar from "./avatar.svelte";
 
     export let participant:any;
     export let isOwner = false;
-
-
-
 
 </script>
 
 
 
 <div class="avatar">
-    <span class="avatar_image">
-        <img src={participant.avatar_url} alt="avatar">
-    </span>
+    <Avatar avatar_url={participant.avatar_url}/>
     <span class="avatar_name">
         <span>{participant.user_name}</span>
        {#if isOwner}<span class="avatar_role">admin</span>{/if}
@@ -44,11 +39,7 @@
         color: var(--color-dark-purple);
         font-weight: 600;
     }
-    .avatar_image img{
-        width: 30px;
-        border-radius: 30px;
-        border: 1px solid var(--color-blue-gray);
-    }
+
     .avatar_role{
         color: var(--color-sea-blue);
     }
