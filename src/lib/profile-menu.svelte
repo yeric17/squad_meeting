@@ -3,10 +3,11 @@
 	import UserSquareIcon from './svg/user-square-icon.svelte';
 	import { fade } from 'svelte/transition';
 	import { API_HOST } from '../utils/config';
+	import { supabase } from './supabase';
 	export let showMenu = false;
 
 	async function signOut() {
-		await fetch(`${API_HOST}/signout`, { method: 'POST' });
+		await supabase.auth.signOut()
 		window.location.href = '/login';
 	}
 </script>

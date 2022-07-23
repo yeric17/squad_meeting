@@ -1,14 +1,14 @@
-<script>
+<script lang="ts">
     import SquadMeetingLogo from '$lib/svg/squad-meeting-logo.svelte';
     import Avatar from '$lib/avatar-header.svelte';
-    import { appUser } from '../stores/user';
-    import {activeConversation} from '../stores/conversations';
+	import {activeConversation} from '$stores/conversations'
+import { user } from '$stores/sessionStore';
 
     let showChangeNameInput = false;
     let newConversationName = '';
 
     function showChangeName() {
-		newConversationName = $activeConversation.friendlyName ? $activeConversation.friendlyName : '';
+		newConversationName = $activeConversation.friendlyName == null ?'': $activeConversation.friendlyName;
 		showChangeNameInput = true;
 	}
 
@@ -43,13 +43,13 @@
             <span on:click={showChangeName}>
                 {$activeConversation.friendlyName}
             </span>
-            {#if $activeConversation.createdBy === $appUser.id}
+            {#if $activeConversation.createdBy === $user.id}
                 <button class="conversation_copy-id" on:click={copyClipboardId}> Copiar ID </button>
             {/if}
         {/if}
     </div>
     <div class="header_user-info">
-        <Avatar userName={$appUser.name} avatar={$appUser.avatar} />
+        <Avatar userName={$user.name} avatar={$user.avatar} />
     </div>
 </header>
 

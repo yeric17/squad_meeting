@@ -12,68 +12,6 @@ const {verify} = jwt;
 export const handle: Handle = async ({ event, resolve }) => {
     
     console.log(`request: ${event.request.method}\t| origin:${event.url.origin}\t -> href:${event.url.href}`)
-    
-    
-    let sessionUser:AppUser = {
-        id: "",
-        name: "",
-        email: "",
-        avatar: "",
-        logged_in: false,
-    }
-    //console.log(event.request)
-    
-    if(event.url.pathname.startsWith("/api/signout") || event.url.pathname.startsWith("/api/login") && event.request.method === 'POST'){
-        const response = await resolve(event);
-        return response;
-    }
-
-
-    const cookie = event.request.headers.get('cookie')
-
-    if(cookie){
-        const parsedCookie = parse(cookie)
-        const accessToken = parsedCookie._access_token;
-
-        try{
-            const verifiedToken:any = verify(accessToken, SUPABASE_JWT)
-            
-            let {data} = await supabase.from('profiles').select().eq('id',verifiedToken.sub)
-            let tempUser = {id:"",email:"",name:"",avatar:"",logged_in:false}
-            if(data && data.length > 0){
-                let supaUser = data[0]
-                tempUser = {
-                    id: supaUser.id,
-                    email: supaUser.email,
-                    name: supaUser.user_name,
-                    avatar: supaUser.avatar_url,
-                    logged_in: true
-                }
-            }
-            else {
-                tempUser = {
-                    id: verifiedToken.sub,
-                    email: verifiedToken.email,
-                    name: verifiedToken.user_metadata.user_name,
-                    avatar: verifiedToken.user_metadata.avatar_url,
-                    logged_in: true
-                }
-            }
-            sessionUser = tempUser;
-            event.locals.user = sessionUser
-
-            const response = await resolve(event);
-            return response
-        }
-        catch(err){
-            console.log(err)
-        }
-    }
-
-    
-    event.locals.user = sessionUser;
-
-
   
     const response = await resolve(event);
     return response;
@@ -85,5 +23,4 @@ export const getSession: GetSession = async (event) =>{
     return {
         user:sessionUser,
     }
-
 }

@@ -5,6 +5,7 @@
     import { fly } from "svelte/transition";
     import Spin from "./spin.svelte";
     import { clickOutside } from "./click-outside";
+import ConversationCard from "./conversation-card.svelte";
 
     export let list:Conversation[] = [];
     export let userId:string = "";
@@ -44,16 +45,7 @@
             {#if idx > 0 && conv.createdBy !== userId && list[idx - 1].createdBy === userId}
             <span class="side_list_section">Compartidas</span>
             {/if}
-            <li class="side_list_item">
-                <a class="side_list_link" on:click={clickOnLink} href={`conversations/${conv.sid}`}>
-                    <span class="item_name">
-                        {conv.friendlyName}
-                    </span>
-                    <span class="item_date">
-                        {conv.dateCreated?.toLocaleString("es-ES")}
-                    </span>
-                </a>
-            </li>
+            <ConversationCard conversation={conv}/>
             {/each}
         </ul>
     </div>
@@ -94,27 +86,7 @@
         display: flex;
         flex-direction: column;
     }
-    .side_list_link{
-        --color-text: inherit;
-        text-decoration: none;
-        color: inherit;
-        display: flex;
-        flex-direction: column;
-        gap: .3rem;
-        padding: .5rem;
-        transition: all .2s;
-        position:relative;
-        color: var(--color-text);
-    }
-
-    .side_list_link:hover{
-        --color-text: white;
-        background-color: var(--color-blue-gray);
-    }
-    .item_date{
-        font-size: .7rem;
-        color: var(--color-text);
-    }
+   
     .button_close{
         border: none;
         display: flex;

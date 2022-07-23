@@ -1,28 +1,3 @@
-<script context="module" lang="ts">
-    import type { Load } from '@sveltejs/kit';
-
-    export const load:Load = async ({session,url}) => {
-        const currentSession:any = session;
-
-        const user = currentSession.user
-
-        if(user == null){
-            return{
-                status: 200,
-            }
-        }
-        if(user.logged_in){
-            return {
-                status: httpStatusCode.Found,
-                redirect: "/",
-            }
-        }
-        return {
-            status:200,
-        }
-    }
-</script>
-
 <script lang="ts">
     //import { goto } from '$app/navigation';
 
@@ -32,19 +7,29 @@
     import InputEmail from "$lib/form/input-email.svelte";
     import InputPassword from "$lib/form/input-password.svelte";
     import Spin from '$lib/spin.svelte';
-    import { httpStatusCode } from '../utils/http-status-codes';
+    import { httpStatusCode } from '$utils/http-status-codes';
     import { supabase } from '$lib/supabase';
-    import { API_HOST } from '../utils/config';
+    import { API_HOST } from '$utils/config';
+    import { user } from '$stores/sessionStore';
+    import { afterUpdate, beforeUpdate, onMount } from 'svelte';
+    import { goto } from '$app/navigation';
     //import { goto } from '$app/navigation';
     //import type { AppUser } from '../stores/user';
-
-
 
 
     let isValid = false;
     let isSubmit = false;
     let isLoading = false;
     let errorMessage = "";
+    let loading:boolean = true;
+
+    onMount(async()=>{
+        loading = true;
+        if($user.logged_in){
+            await goto("/")
+        }
+        loading = false;
+    })
 
     type LoginUser = {
         email:string,
@@ -58,43 +43,36 @@
 
     const validUser = {
         email: false,
-        password: false
+        password: false,
+        test: function (){
+            return this.email && this.password
+        }
     }
+
+
     // handlers
-    const handleSubmit = async () => {
-        isLoading = true;
-        isValid = validUser.email && validUser.password;
-        isSubmit = true;
-
-        if(!isValid){
-            isLoading = false;
-            return;
-        } 
-
-        const response = await fetch("api/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify(loginUser)
-        })
-        
-        if(response.ok){
-            console.log("goto in login")
-            try{
-                window.location.reload()
-                //await goto("/")
+    const handleLogin = async () => {
+        if(!validUser.test()) return;
+        try{
+            isLoading = true
+            const {error} = await supabase.auth.signIn({
+                email: loginUser.email,
+                password: loginUser.password
+            })
+            if(error){
+                isValid = false
+                errorMessage = error.message
             }
-            catch(err){
-                console.log(err)
-            }
+            window.location.href = "/"
         }
-        else {
-            isLoading = false;
+        catch(error){
+            console.log(error)
             isValid = false;
-            errorMessage = "El correo electrónico o contraseña no son validos"
+            errorMessage = "Estamos presentando un error interno, intentalo mas tarde"
         }
-        
+        finally{
+            isLoading = false;
+        }
     }
     async function loginWithGoogle(){
         await supabase.auth.signIn({
@@ -119,11 +97,13 @@
     <title>Login</title>
 </svelte:head>
 
+
 <section class="login-container">
+
     <div class="login_header">
         <SquadMeetingLogo/>
     </div>
-    <form class="login_form" on:submit|preventDefault={handleSubmit} class:valid={isValid}>
+    <form class="login_form" on:submit|preventDefault={handleLogin} class:valid={isValid}>
         <h1 class="login_title">Login</h1>
         <div class="login_email">
             <InputEmail bind:value={loginUser.email} bind:isValid={validUser.email}/>
@@ -159,6 +139,7 @@
         <SquadMeetingText/>
     </div>
 </section>
+
 
 <style>
     .login-container{

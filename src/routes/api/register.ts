@@ -47,7 +47,6 @@ export const post: RequestHandler = async ({request}) => {
         body: JSON.stringify(newTwilioUser)
     })
 
-    console.log("Twilio:", resTwilio)
     return {
         status: 200
     }

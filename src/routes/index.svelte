@@ -1,28 +1,58 @@
 <script context="module" lang="ts">
-    import type { Load } from "@sveltejs/kit";
+	import type { Load } from '@sveltejs/kit';
+
+	export const load: Load = async ({ params }) => {
+
+		return {
+			status: 200
+		};
+	};
+</script>
+
+
+<script lang="ts">
+    import SquadMeetingLogo from "$lib/svg/squad-meeting-logo.svelte";
+    import SquadMeetingText from "$lib/svg/squad-meeting-text.svelte";
+    import InputText from "$lib/form/input-text.svelte";
+    import Avatar from "$lib/avatar-header.svelte";
+    import ConversationList from "$lib/conversation-list.svelte";
+    import {Client, Conversation, Participant, type CreateConversationOptions, type Paginator} from '@twilio/conversations'
+    import { rolesSid } from "$utils/roles-sid";
+    import type { ConversationInstance } from "twilio/lib/rest/conversations/v1/conversation";
+    import { API_HOST } from "$utils/config";
+    import { httpStatusCode } from "$utils/http-status-codes";
+    import Spin from "$lib/spin.svelte";
+    import { onMount,beforeUpdate } from "svelte";
+    import { user } from "$stores/sessionStore";
+
+    import LoaderPage from "$lib/loader-page.svelte";
+    import { goto } from "$app/navigation";
+
     
-    export const load: Load = async({fetch, session}) => {
+    let client:Client;
+    let sortedConversations:Conversation[];
+
+    let joinConversationID = ""
+    let isValidNew = false;
+    let isValidJoin = false;
+    let errorMessage = "";
+    let isLoadingCreate = false;
+    let isLoadingJoin = false;
+    let loading = true;
+
+    onMount(async()=>{
+        loading = true;
         
-        const currentSession:any = session;
-        
-        const user = currentSession.user
-        console.log(user)
-        if(user == null || !user.logged_in){
-            return {
-                status: httpStatusCode.Found,
-                redirect: "/login",
-            }
+        if(!$user.logged_in){
+            goto("/login")
         }
-        
-        const accesTokenResponse = await fetch(`${API_HOST}/access-token?identity=${user.id}`);
-        
+
+        const accesTokenResponse = await fetch(`${API_HOST}/access-token?identity=${$user.id}`);
         if(!accesTokenResponse.ok){
             console.log("Error on get Access Token")
         }
-
         const accesToken = await accesTokenResponse.text();
-        
-        const client =  new Client(accesToken)
+        client =  new Client(accesToken)
 
         await new Promise((resolve) =>{
             client.on('connectionStateChanged', state=>{
@@ -33,67 +63,20 @@
             })
         })
 
-        // get the conversations paginator
-        let conversationsPaginator: Paginator<Conversation> = await client.getSubscribedConversations();
+        const conversationPaginator:Paginator<Conversation> = await client.getSubscribedConversations()
 
-        // get conversations
-        const conversations: Conversation[] = conversationsPaginator.items;
-
-        let visibleConversations:Conversation[] = await new Promise(resolve=>{
-            const tempConv =conversations.filter( async conversation=>{
-                let participants: Participant[] = await conversation.getParticipants();
-                return participants.find(participant => participant.identity === user.id)
-            })
-            resolve(tempConv)
-        })
-        
-        const sortedConversations = visibleConversations.sort((a, b) => {
-            if(a.createdBy === user.id && b.createdBy === user.id){
+        sortedConversations = conversationPaginator.items.sort((a, b) => {
+            if(a.createdBy === $user.id && b.createdBy === $user.id){
                 return 0
             }
-            if(a.createdBy === user.id) return -1
-            if(b.createdBy === user.id) return 1
+            if(a.createdBy === $user.id) return -1
+            if(b.createdBy === $user.id) return 1
             return 0
         })
 
-        return {
-            status: 200,
-            props: {
-                user,
-                client,
-                sortedConversations
-            }
-        }
         
-    }
-</script>
-
-<script lang="ts">
-    import SquadMeetingLogo from "$lib/svg/squad-meeting-logo.svelte";
-    import SquadMeetingText from "$lib/svg/squad-meeting-text.svelte";
-    import InputText from "$lib/form/input-text.svelte";
-    import Avatar from "$lib/avatar-header.svelte";
-    import ConversationList from "$lib/conversation-list.svelte";
-    import {Client, Conversation, Participant, type CreateConversationOptions, type Paginator} from '@twilio/conversations'
-    import { rolesSid } from "../utils/roles-sid";
-    //import type {UserListInstanceCreateOptions } from "twilio/lib/rest/chat/v1/service/user";
-    import type { ConversationInstance } from "twilio/lib/rest/conversations/v1/conversation";
-    
-    import { getColor } from "$lib/get-color-index";
-    import { API_HOST } from "../utils/config";
-    import { httpStatusCode } from "../utils/http-status-codes";
-    import Spin from "$lib/spin.svelte";
-
-    export let user:any;
-    export let client:Client;
-    export let sortedConversations:Conversation[];
-
-    let joinConversationID = ""
-    let isValidNew = false;
-    let isValidJoin = false;
-    let errorMessage = "";
-    let isLoadingCreate = false;
-    let isLoadingJoin = false;
+        loading = false;
+    })
 
     async function handleCreate(event:Event){
         isLoadingCreate = true;
@@ -103,7 +86,7 @@
         
         const convUniqueName = crypto.randomUUID();
 
-        if(user.id == null || user.id == ""){
+        if($user.id == null || $user.id == ""){
             isLoadingCreate = false;
             return;
         } 
@@ -120,7 +103,7 @@
 
         const newParticipant = {
             participant:{
-                identity: user.id,
+                identity: $user.id,
                 roleSid: rolesSid.channelAdmin
             },
             conversationSid:newConversation.sid
@@ -154,7 +137,6 @@
             return;
         }
         const conversation:ConversationInstance = await convResponse.json()
-        const listConversations = await client.getSubscribedConversations()
 
         const response = await fetch(`${API_HOST}/participants`, 
         {
@@ -164,7 +146,7 @@
             },
             body: JSON.stringify({
                 participant:{
-                    identity: user.id,
+                    identity: $user.id,
                     roleSid: rolesSid.channelUser,
                 },
                 conversationSid: conversation.sid
@@ -187,14 +169,17 @@
     <title>Iniciar conversacion</title>
 </svelte:head>
 <section class="page_container">
+    {#if loading}
+        <LoaderPage/>
+    {:else}
     <header class="header">
         <div class="header_container">
             <div class="header_menu">
-                <ConversationList list={sortedConversations} userId={user.id}></ConversationList>
+                <ConversationList list={sortedConversations} userId={$user.id}></ConversationList>
             </div>
             <Avatar
-                userName={user.name}
-                avatar={user.avatar}
+                userName={$user.name}
+                avatar={$user.avatar}
                 namePosition="left"
             />
         </div>
@@ -241,8 +226,8 @@
             </div>
         </div>
     </footer>
+    {/if}
 </section>
-
 <style>
     .page_container{
         display: grid;

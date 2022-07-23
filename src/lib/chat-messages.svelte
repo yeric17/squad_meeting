@@ -77,6 +77,7 @@
                         <MessageCard 
                         isMine={message.author === currentUserId}
                         message={message}
+                        showName={true}
                         showDate={false}
                         showAdminOptions={showAdminOptions}
                         on:reply={handleReply}/>

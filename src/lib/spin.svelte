@@ -1,4 +1,9 @@
-<div class="spin_wrapper">
+<script lang="ts">
+    export let color:string = "white"
+    export let size:string = ".2rem"
+</script>
+
+<div class="spin_wrapper" style="--spin-color:{color};--dot-size:{size}">
     <div class="spin_dot" style="--index:1"></div>
     <div class="spin_dot" style="--index:2"></div>
     <div class="spin_dot" style="--index:3"></div>
@@ -23,13 +28,12 @@
         align-items: center;
     }
     .spin_dot{
-        --dot-size: .2rem;
         position: absolute;
         width: var(--dot-size);
         height: var(--dot-size);
-        background-color: white;
+        background-color: var(--spin-color);
         border-radius: var(--dot-size);
-        transform: rotate(calc(var(--index) * (360deg / 10))) translateY(10px);
+        transform: rotate(calc(var(--index) * (360deg / 10))) translateY(calc(var(--dot-size) * 3));
         animation: animate_opacity 1s linear infinite;
         opacity: 0%;
         animation-delay: calc(var(--index) * .1s);

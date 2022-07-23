@@ -13,6 +13,7 @@
     import { supabase } from './supabase';
     import { onMount } from 'svelte';
     import { messageList } from '../stores/messages';
+	import { user } from '$stores/sessionStore';
     
     
     export let replyAttributes: any | null = null;
@@ -22,10 +23,12 @@
     let replyMessage: Message | null = null;
     let emoticonsIsActive = false;
 	let atachmentIsActive = false;
-
+	let inputChat:HTMLInputElement|null = null;
 
     onMount(() => {
 		$activeConversation.on('messageAdded', addMessage);
+
+		inputChat = document.getElementById('chatMessage') as HTMLInputElement
 
 		$activeConversation.on('typingStarted', async (participant) => {
 			let { data } = await supabase
@@ -33,7 +36,6 @@
 				.select('user_name')
 				.eq('id', participant.identity);
 			if (data == null) return;
-			console.log({ data });
 			typingUser = data[0];
 		});
 		$activeConversation.on('typingEnded', () => {
@@ -41,8 +43,13 @@
 		});
 	});
 
-    function addMessage(message: Message) {
-        messageList.set([...$messageList, message]);
+    async function addMessage(message: Message) {
+        messageList.update(list => {
+			list.push(message)
+			return list
+		});
+		const participant = await message.getParticipant()
+		$activeConversation.emit('typingEnded',participant)
         goBottomChat();
     }
 
@@ -60,16 +67,16 @@
 			await $activeConversation.sendMessage(
 				textInput,
 				JSON.stringify({
-					name: $appUser.name,
-					avatar_url: $appUser.avatar
+					name: $user.name,
+					avatar_url: $user.avatar
 				})
 			);
 		} else {
 			await $activeConversation.sendMessage(
 				textInput,
 				JSON.stringify({
-					name: $appUser.name,
-					avatar_url: $appUser.avatar,
+					name: $user.name,
+					avatar_url: $user.avatar,
 					reply: {
 						body: replyMessage.body,
 						sid: replyMessage.sid
@@ -81,8 +88,8 @@
 		textInput = '';
 	}
 
-    function handleInputChat() {
-		$activeConversation.typing();
+    async function handleInputChat() {
+		await $activeConversation.typing();
 	}
 
     function handleEmoticons(target: CustomEvent) {
@@ -102,7 +109,13 @@
 			emoticonsIsActive = false;
 		}
 	}
+
+	function handleKeyDown(event:KeyboardEvent){
+		inputChat?.focus()
+	}
 </script>
+
+<svelte:window  on:keydown={handleKeyDown}/>
 
 <section class="chat_controls">
     {#if typingUser}

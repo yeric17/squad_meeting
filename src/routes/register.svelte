@@ -8,22 +8,22 @@
     
 
     export const load:Load = async ({session}) => {
-        console.log(session)
-        const currentSession:any = session;
+        // console.log(session)
+        // const currentSession:any = session;
 
-        const user = currentSession.user
+        // const user = currentSession.user
 
-        if(user == null){
-            return{
-                status: 200,
-            }
-        }
-        if(user.logged_in){
-            return {
-                status: httpStatusCode.Found,
-                redirect: "/",
-            }
-        }
+        // if(user == null){
+        //     return{
+        //         status: 200,
+        //     }
+        // }
+        // if(user.logged_in){
+        //     return {
+        //         status: httpStatusCode.Found,
+        //         redirect: "/",
+        //     }
+        // }
         return {
             status:200,
         }

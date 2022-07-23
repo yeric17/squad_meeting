@@ -83,9 +83,9 @@ import Avatar from "./avatar.svelte";
         <div class="message_info">
             {#if !isMine && showName}
             <span class="message_avatar">
-                <Avatar avatar_url={attributes.avatar_url}/>
+                <Avatar avatar_url={attributes.avatar_url} size={"28px"}/>
             </span>
-            <span class="message_author">{attributes.name}</span>
+            <span class="message_author" class:exist-date={showDate}>{attributes.name}</span>
             {/if}
             {#if showDate && message.dateCreated}
             <span class="message_date">{getFormatDate(message.dateCreated)}</span>
@@ -170,16 +170,23 @@ import Avatar from "./avatar.svelte";
     .message_info{
         display: grid;
         grid-template-columns: auto 1fr;
-        align-items: start;
+        align-items: center;
         gap:.3rem;
         padding-bottom: .3rem;
     }
     .message_avatar{
         grid-row: span 2;
     }
+    .message_author{
+        grid-column-start: 2;
+        grid-row: span 2;
+    }
+    .message_author.exist-date{
+        grid-row: span 1;
+    }
 
     .message_content.my-message .message_info{
-        align-items: flex-end;
+        align-items: end;
     }
     .message_author{
         font-size: .9rem;
