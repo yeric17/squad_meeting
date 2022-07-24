@@ -65,6 +65,7 @@ import ConversationCard from "./conversation-card.svelte";
         display: flex;
         justify-content: space-between;
         padding: .5rem;
+        
         background-color: var(--color-sea-blue);
         color:white;
         height: 50px;
@@ -85,6 +86,7 @@ import ConversationCard from "./conversation-card.svelte";
     .side_list{
         display: flex;
         flex-direction: column;
+        gap:.5rem;
     }
    
     .button_close{

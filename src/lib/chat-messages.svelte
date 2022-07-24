@@ -1,20 +1,21 @@
 
 <script lang="ts">
-    import { messageList } from "../stores/messages";
+    import { addMessageToList, messageList } from "../stores/messages";
     import { createEventDispatcher, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import MessageCard from "./message-card.svelte";
     import ArrowDownIcon from "./svg/arrow-down-icon.svelte";
+    import { activeConversation } from "$stores/conversations";
+    import type { Message } from "@twilio/conversations";
     
 
     const dispacher = createEventDispatcher()
 
     let showToBottomBtn = false;
-
     export let isTopChat = false;
 
     export let currentUserId:string = ""
-    export let showAdminOptions:boolean = false;
+
     
     function isDateEqual(date1:Date | null, date2:Date | null):boolean{
         if(date1 == null) return true;
@@ -27,8 +28,17 @@
     }
     
     onMount(()=>{
+        $activeConversation.on('messageAdded',addMessage)
         goBottomChat()
     })
+    async function addMessage(message: Message) {
+		
+        addMessageToList(message)
+		const participant = await message.getParticipant()
+		$activeConversation.emit('typingEnded',participant)
+        goBottomChat();
+    }
+
     
     function goBottomChat(){
         let dummyAnchor = document.createElement("a")
@@ -47,6 +57,7 @@
         dispacher('scroll', event)
     }
 
+
     function handleReply(event:CustomEvent){
         console.log('reply from message')
         dispacher('reply',event.detail)
@@ -56,40 +67,13 @@
         <div class="chat_message_wrapper">
             {#each $messageList as message, idx}
                 <div class="message_container">
-                    {#if idx > 0 && message.author === $messageList[idx - 1].author}
-                        {#if idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)}
-                            <MessageCard 
-                            isMine={message.author === currentUserId}
-                            showDate={false}
-                            showName={false}
-                            message={message}
-                            showAdminOptions={showAdminOptions}
-                            on:reply={handleReply}/>
-                        {:else}
-                            <MessageCard 
-                            isMine={message.author === currentUserId}
-                            showName={false}
-                            message={message}
-                            showAdminOptions={showAdminOptions}
-                            on:reply={handleReply}/>
-                        {/if}
-                    {:else if idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)}
-                        <MessageCard 
-                        isMine={message.author === currentUserId}
-                        message={message}
-                        showName={true}
-                        showDate={false}
-                        showAdminOptions={showAdminOptions}
-                        on:reply={handleReply}/>
-                    {:else}
-                        <MessageCard 
-                        isMine={message.author === currentUserId}
-                        message={message}
-                        showName={true}
-                        showDate={true}
-                        showAdminOptions={showAdminOptions}
-                        on:reply={handleReply}/>
-                    {/if}
+                    <MessageCard 
+                    showName={(idx > 0 && message.author !== $messageList[idx - 1].author) || idx === 0}
+                    showDate={(idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)) || idx === 0}
+                    isMine={currentUserId === message.author}
+                    message={message}
+                    showAdminOptions={currentUserId === $activeConversation.createdBy}
+                    on:reply={handleReply}/>
                 </div>
                 {/each}
                 <span id="bottom_chat"></span>

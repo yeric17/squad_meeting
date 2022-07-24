@@ -36,8 +36,8 @@
 	import { user } from '$stores/sessionStore';
 
 	import LoaderPage from "$lib/loader-page.svelte";
-import { addNotification } from '$utils/notifications';
-import { supabase } from '$lib/supabase';
+	import { addNotification } from '$utils/notifications';
+	import { supabase } from '$lib/supabase';
 
 	export let conversationId:string = "";
 	
@@ -113,7 +113,8 @@ import { supabase } from '$lib/supabase';
 		}
 	})
 
-	onDestroy(()=>{
+	onDestroy(async ()=>{
+		await $activeConversation.setAllMessagesRead()
 		$activeConversation.emit('participantLeft',selfParticipant)
 	})
 
@@ -150,7 +151,6 @@ import { supabase } from '$lib/supabase';
 		currentUserId={$user.id}
 		bind:isTopChat
 		on:scroll={handleChatScroll}
-		showAdminOptions={$user.id === $activeConversation.createdBy}
 		on:reply={handleReply}
 	/>
 	<ChatControls replyAttributes={replyAttributes}/>

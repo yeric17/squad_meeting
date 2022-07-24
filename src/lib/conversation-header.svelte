@@ -2,7 +2,10 @@
     import SquadMeetingLogo from '$lib/svg/squad-meeting-logo.svelte';
     import Avatar from '$lib/avatar-header.svelte';
 	import {activeConversation} from '$stores/conversations'
-import { user } from '$stores/sessionStore';
+	import { user } from '$stores/sessionStore';
+	import { updateChatState } from '$stores/chat-state';
+
+	
 
     let showChangeNameInput = false;
     let newConversationName = '';
@@ -10,10 +13,12 @@ import { user } from '$stores/sessionStore';
     function showChangeName() {
 		newConversationName = $activeConversation.friendlyName == null ?'': $activeConversation.friendlyName;
 		showChangeNameInput = true;
+		updateChatState('edit')
 	}
 
 	function hideChangeName() {
 		showChangeNameInput = false;
+		updateChatState('idle')
 	}
 
     async function copyClipboardId() {

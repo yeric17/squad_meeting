@@ -12,7 +12,6 @@ import Avatar from "./avatar.svelte";
     // import TrashIcon from "./svg/trash-icon.svelte";
     export let isMine:boolean = true;
     export let message:Message;
-
     export let showDate:boolean = true;
     export let showName:boolean = false;
     export let showAdminOptions:boolean = false;
@@ -200,8 +199,8 @@ import Avatar from "./avatar.svelte";
         transform: translateX(100%);
         border-radius: 4px;
         display: none;
-        width: 100px;
-        
+        width: 80px;
+        z-index: 100;
         overflow: hidden;
     }
     .message_content.my-message .body_menu{

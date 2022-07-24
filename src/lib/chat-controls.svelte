@@ -12,12 +12,12 @@
     import {slide} from 'svelte/transition'
     import { supabase } from './supabase';
     import { onMount } from 'svelte';
-    import { messageList } from '../stores/messages';
+    import { addMessageToList } from '../stores/messages';
 	import { user } from '$stores/sessionStore';
+	import { chatCurrentState } from '$stores/chat-state';
     
     
     export let replyAttributes: any | null = null;
-
     let textInput = '';
     let typingUser: any = null;
     let replyMessage: Message | null = null;
@@ -26,7 +26,6 @@
 	let inputChat:HTMLInputElement|null = null;
 
     onMount(() => {
-		$activeConversation.on('messageAdded', addMessage);
 
 		inputChat = document.getElementById('chatMessage') as HTMLInputElement
 
@@ -43,21 +42,6 @@
 		});
 	});
 
-    async function addMessage(message: Message) {
-        messageList.update(list => {
-			list.push(message)
-			return list
-		});
-		const participant = await message.getParticipant()
-		$activeConversation.emit('typingEnded',participant)
-        goBottomChat();
-    }
-
-    function goBottomChat() {
-		let dummyAnchor = document.createElement('a');
-		dummyAnchor.href = '#bottom_chat';
-		dummyAnchor.click();
-	}
 
     async function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -110,7 +94,8 @@
 		}
 	}
 
-	function handleKeyDown(event:KeyboardEvent){
+	function handleKeyDown(){
+		if($chatCurrentState !== 'idle') return;
 		inputChat?.focus()
 	}
 </script>

@@ -1,21 +1,41 @@
 <script lang="ts">
-    import type { Conversation } from "@twilio/conversations";
+import { activeConversation } from "$stores/conversations";
+
+    import type { Conversation, JSONObject, Message } from "@twilio/conversations";
     import { onMount } from "svelte";
     import { createEventDispatcher } from "svelte";
+import { supabase } from "./supabase";
 
     export let conversation:Conversation;
 
     const displacher = createEventDispatcher()
 
     let messageUnread:number|null = null
+    let lastMessage:Message|null = null;
+
+    let lastMessageAuthor:string|null = null;
     onMount(async()=>{
         messageUnread = await conversation.getUnreadMessagesCount()
         
+        const messages = await conversation.getMessages(1,conversation.lastMessage?.index,'backwards')
+        lastMessage = messages.items[0]
+        await updateMessageAuthor()
         
-        conversation.on('messageAdded', async()=>{
-            messageUnread = await conversation.getUnreadMessagesCount()
-        })
+        // conversation.on('messageAdded', async(message)=>{
+        //     lastMessage = message;
+        //     await updateMessageAuthor()
+        //     messageUnread = await conversation.getUnreadMessagesCount()
+        // })
     })
+
+    async function updateMessageAuthor(){
+        if(lastMessage == null) return;
+        const {data} = await supabase.from('profiles').select('user_name').eq('id', lastMessage.author)
+
+        if(data){
+            lastMessageAuthor = data[0].user_name
+        }
+    }
 
     function clickOnLink(){
         displacher('click')
@@ -29,7 +49,19 @@
             {conversation.friendlyName}
         </span>
         <span class="item_date">
-            {conversation.dateCreated?.toLocaleString("es-ES")}
+            {#if lastMessage}
+            {lastMessage.dateCreated?.toLocaleString("es-ES",{day:'numeric',month:'numeric',year:'2-digit'})}
+            {/if}
+        </span>
+        <span class="item_body">
+            {#if lastMessage}
+            <span class="body_author">
+                {lastMessageAuthor}:
+            </span>
+            <span class="body_content">
+                {lastMessage.body}
+            </span>
+            {/if}
         </span>
         {#if messageUnread}
         <span class="item_unread-count" class:over-limit={messageUnread > 99}>
@@ -44,8 +76,8 @@
         --color-text: inherit;
         text-decoration: none;
         color: inherit;
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 1fr auto;
         gap: .3rem;
         padding: .5rem;
         transition: all .2s;
@@ -72,9 +104,9 @@
     }
     .item_unread-count{
         position: absolute;
-        right: .5rem;
-        top: 50%;
-        transform: translateY(-50%);
+        right: 0;
+        bottom: 0;
+        transform: translateY(50%);
         width: 1.5rem;
         height: 1.5rem;
         background-color: var(--color-purple);
@@ -104,5 +136,15 @@
     }   
     .item_unread-count.over-limit::after{
         content: "+";
+    }
+    .item_body{
+        max-width: 220px;
+        font-size: .8rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .body_author{
+        font-weight: 600;
     }
 </style>
