@@ -2,9 +2,9 @@
 import { activeConversation } from "$stores/conversations";
 
     import type { Conversation, JSONObject, Message } from "@twilio/conversations";
-    import { onMount } from "svelte";
+    import { onMount,onDestroy } from "svelte";
     import { createEventDispatcher } from "svelte";
-import { supabase } from "./supabase";
+    import { supabase } from "./supabase";
 
     export let conversation:Conversation;
 
@@ -21,11 +21,15 @@ import { supabase } from "./supabase";
         lastMessage = messages.items[0]
         await updateMessageAuthor()
         
-        // conversation.on('messageAdded', async(message)=>{
-        //     lastMessage = message;
-        //     await updateMessageAuthor()
-        //     messageUnread = await conversation.getUnreadMessagesCount()
-        // })
+        conversation.on('messageAdded', async(message)=>{
+            lastMessage = message;
+            await updateMessageAuthor()
+            messageUnread = await conversation.getUnreadMessagesCount()
+        })
+    })
+
+    onDestroy(async()=>{
+        conversation.removeAllListeners('messageAdded')
     })
 
     async function updateMessageAuthor(){

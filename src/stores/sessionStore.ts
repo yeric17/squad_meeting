@@ -29,14 +29,14 @@ export const setUser = async (newUser:User|null) => {
         return;
     }
 
-    let {data,error} = await supabase.from('profiles').select().eq('id',newUser.id)
+    let {data,error} = await supabase.from('profiles').select().eq('id',newUser.id).single()
     if(error){
         console.log(error)
         return;
     }
     if(data == null) return;
-    if(data.length === 0) return;
-    const supaUser = data[0]
+
+    const supaUser = data
     let newAppUser:AppUser = {
         id: supaUser.id,
         name: supaUser.user_name,

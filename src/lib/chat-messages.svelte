@@ -1,20 +1,19 @@
 
 <script lang="ts">
     import { addMessageToList, messageList } from "../stores/messages";
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onDestroy, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import MessageCard from "./message-card.svelte";
     import ArrowDownIcon from "./svg/arrow-down-icon.svelte";
     import { activeConversation } from "$stores/conversations";
     import type { Message } from "@twilio/conversations";
+import { user } from "$stores/sessionStore";
     
 
     const dispacher = createEventDispatcher()
 
     let showToBottomBtn = false;
     export let isTopChat = false;
-
-    export let currentUserId:string = ""
 
     
     function isDateEqual(date1:Date | null, date2:Date | null):boolean{
@@ -29,7 +28,12 @@
     
     onMount(()=>{
         $activeConversation.on('messageAdded',addMessage)
+        console.log($messageList)
         goBottomChat()
+    })
+
+    onDestroy(()=>{
+        $activeConversation.removeAllListeners('messageAdded')
     })
     async function addMessage(message: Message) {
 		
@@ -65,14 +69,14 @@
 </script>
     <section class="chat_messages" id="chatMessages" on:scroll={scrollHandler}>
         <div class="chat_message_wrapper">
-            {#each $messageList as message, idx}
+            {#each $messageList as message, idx (message.sid)}
                 <div class="message_container">
                     <MessageCard 
                     showName={(idx > 0 && message.author !== $messageList[idx - 1].author) || idx === 0}
                     showDate={(idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)) || idx === 0}
-                    isMine={currentUserId === message.author}
+                    isMine={$user.id === message.author}
                     message={message}
-                    showAdminOptions={currentUserId === $activeConversation.createdBy}
+                    showAdminOptions={$user.id === $activeConversation.createdBy}
                     on:reply={handleReply}/>
                 </div>
                 {/each}

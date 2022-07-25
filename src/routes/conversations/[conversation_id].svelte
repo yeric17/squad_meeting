@@ -66,14 +66,7 @@
 
 			activeConversation.set(conversation)
 			await $activeConversation.setAllMessagesRead()
-			$activeConversation.on('participantJoined', async (participant)=>{
-				const {data} = await supabase.from('profiles').select('user_name').eq('id', participant.identity)		
-				addNotification({
-					title: "Ingreso",
-					message: `Ha ingresado ${data?data[0].user_name:'anonimo'}`,
-					type: 'info'
-				})
-			})
+
 			const participants: Participant[] = await $activeConversation.getParticipants();
 
 			let participant = participants.find(par=>par.identity === $user.id)
@@ -104,6 +97,8 @@
 			if (status !== 'joined') {
 				await $activeConversation.join();
 			}
+
+			$activeConversation.emit('participantJoined',selfParticipant)
 		}
 		catch(error){
 			console.log(error)
@@ -148,7 +143,6 @@
 	<ConversationHeader/>
 	<SidebarChat/>
 	<ChatMessages
-		currentUserId={$user.id}
 		bind:isTopChat
 		on:scroll={handleChatScroll}
 		on:reply={handleReply}

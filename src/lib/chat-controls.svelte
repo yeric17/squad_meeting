@@ -97,6 +97,7 @@
 	function handleKeyDown(){
 		if($chatCurrentState !== 'idle') return;
 		inputChat?.focus()
+		
 	}
 </script>
 

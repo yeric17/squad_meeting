@@ -1,21 +1,101 @@
 <script lang="ts">
-import { activeConversation } from '../stores/conversations';
+import { user } from '$stores/sessionStore';
+import type { AppUser } from '$stores/user';
+
+import { API_HOST } from '$utils/config';
+import { rolesSid } from '$utils/roles-sid';
+import { Participant } from '@twilio/conversations';
+
+	import { onMount } from 'svelte';
+import { getExpectedBodyHash } from 'twilio/lib/webhooks/webhooks';
+
+
+	import { activeConversation } from '../stores/conversations';
 
     import { supabaseUsers } from '../stores/participants';
+import AddUser from './add-user.svelte';
 
     import ParticipantCard from './participant-card.svelte';
+import { supabase } from './supabase';
+	import UserAddIcon from './svg/user-add-icon.svelte';
     import UsersIcon from './svg/users-icon.svelte';
     
 
     let showUsers:boolean = false;
     let showAddUser:boolean = false;
+	let allUsers:any[]=[]
+	let loading = false;
 
+	onMount(async()=>{
+		const response = await fetch(API_HOST + "/twilio-users")
+		if(response.ok){
+			let data = await response.json()
+			allUsers = data.body.filter((item:any) => {
+				return !$supabaseUsers.some(supaUser => supaUser.id === item.id)
+			});
+			
+		}
+	})
 
     function toggleShowUsers() {
 		showUsers = !showUsers;
 		if (showUsers) {
 			showAddUser = false;
 		}
+	}
+
+	function toggleShowAddUsers(){
+		showAddUser = !showAddUser;
+		if (showAddUser) {
+			showUsers = false;
+		}
+	}
+
+	async function addUser(event:Event){
+		loading = true;
+		event.preventDefault()
+		event.stopPropagation()
+		const target = event.target as HTMLElement
+		const userId = target.dataset.userid
+		if(userId == null){
+			loading = false;
+			return
+		}
+
+		const response = await fetch(`${API_HOST}/participants`, 
+		{
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				participant:{
+					identity: userId,
+					roleSid: rolesSid.channelUser
+				},
+				conversationSid: $activeConversation.sid
+			})
+		})
+
+		if(response.ok){
+			const {data} = await supabase.from('profiles').select().eq('id',userId).single()
+
+			console.log(data)
+			const newUser:AppUser = {
+				id: data.id,
+				name: data.user_name,
+				email: data.email,
+				avatar: data.avatar_url,
+				logged_in: false,
+			}
+			supabaseUsers.set([...$supabaseUsers,newUser])
+			allUsers = allUsers.filter(u=>{
+				return u.id !== userId
+			})
+		}
+
+		loading = false;
+
 	}
 
 </script>
@@ -25,20 +105,37 @@ import { activeConversation } from '../stores/conversations';
         <li class="side-menu_item" class:active={showUsers} on:click={toggleShowUsers}>
             <UsersIcon />
         </li>
-        <!-- <li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}><UserAddIcon/></li> -->
+        <li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}><UserAddIcon/></li>
     </ul>
     <div class="side-menu_sub" class:active={showUsers || showAddUser}>
         {#if showUsers}
-            {#each $supabaseUsers as participant}
-                <ul class="side-menu_sub_users">
-                    <li class="sub_user">
-                        <ParticipantCard {participant} isOwner={participant.id === $activeConversation.createdBy} />
-                    </li>
-                </ul>
-            {/each}
+			<ul class="side-menu_sub_users">
+				{#each $supabaseUsers as participant, idx (participant.id)}
+					<li class="sub_user">
+							<ParticipantCard {participant} isOwner={participant.id === $activeConversation.createdBy} />
+					</li>
+				{/each}
+        	</ul>
         {/if}
         {#if showAddUser}
-            <span />
+			<ul class="side-menu_sub_users">
+				{#each allUsers as item,idx (item.id)}
+					<li class="sub_user sub_user-action">
+						<span class="car-wrappper">
+							<ParticipantCard participant={item}></ParticipantCard>
+						</span>
+						<button class="button-add" data-userid={item.id} on:click={addUser}>
+							<span class="button-add_icon">
+								{#if loading}
+									Loading...
+								{:else}
+									<UserAddIcon></UserAddIcon>
+								{/if}
+							</span>
+						</button>
+					</li>
+				{/each}
+			</ul>
         {/if}
     </div>
 </section>
@@ -90,5 +187,25 @@ import { activeConversation } from '../stores/conversations';
 		align-items: center;
 		padding-top: 1rem;
 		border-right: 1px solid var(--color-gray-5);
+	}
+	.sub_user-action{
+		display: flex;
+		gap: .5rem;
+	}
+	.car-wrappper{
+		flex-grow: 1;
+	}
+	.button-add{
+		cursor: pointer;
+		border: none;
+		font-size: .8rem;
+		--color-text: var(--color-purple);
+		
+		color:white;
+		padding: .5rem;
+		border-radius: 5px;
+	}
+	.button-add_icon{
+		pointer-events: none;
 	}
 </style>

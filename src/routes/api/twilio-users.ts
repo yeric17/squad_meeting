@@ -3,6 +3,8 @@ import { httpStatusCode } from "../../utils/http-status-codes";
 import type { UserListInstanceCreateOptions } from "twilio/lib/rest/conversations/v1/user";
 import { twilioClient, TWILIO_SERVICE_SID } from "../../lib/twilio-client";
 import { rolesSid } from "../../utils/roles-sid";
+import type { AppUser } from "$stores/user";
+import { supabase } from "$lib/supabase";
 
 
 export const post:RequestHandler = async ({request}) => {
@@ -34,5 +36,14 @@ export const post:RequestHandler = async ({request}) => {
     return {
         status: httpStatusCode.Ok,
         body: JSON.stringify(user)
+    }
+}
+
+
+export const get:RequestHandler = async()=>{
+    const users = await supabase.from('profiles').select('id,email,avatar_url,user_name').limit(20)
+    return{
+        status: 200,
+        body: JSON.stringify(users)
     }
 }

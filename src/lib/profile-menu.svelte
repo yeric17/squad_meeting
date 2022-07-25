@@ -4,11 +4,17 @@
 	import { fade } from 'svelte/transition';
 	import { API_HOST } from '../utils/config';
 	import { supabase } from './supabase';
+import UpdateProfile from './update-profile.svelte';
 	export let showMenu = false;
+	export let showProfile = false;
 
 	async function signOut() {
 		await supabase.auth.signOut()
 		window.location.href = '/login';
+	}
+
+	function handleProfile(){
+		showProfile = true
 	}
 </script>
 
@@ -24,7 +30,7 @@
 				</button>
 			</li>
 			<li class="menu_item">
-				<button href="/profile">
+				<button on:click={handleProfile}>
 					<span class="menu_item_icon">
 						<UserSquareIcon />
 					</span>
@@ -32,6 +38,11 @@
 				</button>
 			</li>
 		</ul>
+	</div>
+{/if}
+{#if showProfile}
+	<div class="profile">
+		<UpdateProfile bind:showProfile={showProfile}/>
 	</div>
 {/if}
 

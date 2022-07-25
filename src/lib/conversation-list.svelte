@@ -5,7 +5,7 @@
     import { fly } from "svelte/transition";
     import Spin from "./spin.svelte";
     import { clickOutside } from "./click-outside";
-import ConversationCard from "./conversation-card.svelte";
+    import ConversationCard from "./conversation-card.svelte";
 
     export let list:Conversation[] = [];
     export let userId:string = "";
@@ -35,18 +35,18 @@ import ConversationCard from "./conversation-card.svelte";
             {#if isLoading}
             <Spin/>
             {/if}
-            <button class="button_close" on:click={toggleMenu}><CloseIcon color={"#F2F2F2"}></CloseIcon></button>
+            <button class="button_close" on:click={toggleMenu}><CloseIcon></CloseIcon></button>
         </div>
         <ul class="side_list">
-            {#each list as conv, idx}
-            {#if idx === 0}
-            <span class="side_list_section">Mis Conversaciones</span>
-            {/if}
-            {#if idx > 0 && conv.createdBy !== userId && list[idx - 1].createdBy === userId}
-            <span class="side_list_section">Compartidas</span>
-            {/if}
-            <ConversationCard conversation={conv}/>
-            {/each}
+            {#each list as conv, idx (conv.sid)}
+                {#if idx === 0}
+                    <span class="side_list_section">Mis Conversaciones</span>
+                {/if}
+                {#if idx > 0 && conv.createdBy !== userId && list[idx - 1].createdBy === userId}
+                    <span class="side_list_section">Compartidas</span>
+                {/if}
+                    <ConversationCard conversation={conv}/>
+                {/each}
         </ul>
     </div>
     {/if}
@@ -90,12 +90,15 @@ import ConversationCard from "./conversation-card.svelte";
     }
    
     .button_close{
+        width: 1rem;
+        height: 1rem;
         border: none;
         display: flex;
         justify-content: center;
         align-items: center;
         cursor: pointer;
         background-color: transparent;
+        --color-text: var(--color-gray-6);
     }
     .button_close:hover{
         opacity: .5;

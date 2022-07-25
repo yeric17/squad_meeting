@@ -36,3 +36,10 @@
     border-width: 1px;
     color: var(--color-gray-6);
 }
+
+.button.small {
+    height: 28px;
+    min-width: 100px;
+    font-size: .8rem;
+    font-weight: 500;
+}
