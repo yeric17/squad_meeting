@@ -17,6 +17,7 @@ import AddUser from './add-user.svelte';
 
     import ParticipantCard from './participant-card.svelte';
 import { supabase } from './supabase';
+import AddIcon from './svg/add-icon.svelte';
 	import UserAddIcon from './svg/user-add-icon.svelte';
     import UsersIcon from './svg/users-icon.svelte';
     
@@ -126,11 +127,9 @@ import { supabase } from './supabase';
 						</span>
 						<button class="button-add" data-userid={item.id} on:click={addUser}>
 							<span class="button-add_icon">
-								{#if loading}
-									Loading...
-								{:else}
-									<UserAddIcon></UserAddIcon>
-								{/if}
+								<div>
+									<AddIcon/>
+								</div>
 							</span>
 						</button>
 					</li>
@@ -199,13 +198,20 @@ import { supabase } from './supabase';
 		cursor: pointer;
 		border: none;
 		font-size: .8rem;
-		--color-text: var(--color-purple);
+		--color-text: var(--color-gray-3);
 		
 		color:white;
 		padding: .5rem;
 		border-radius: 5px;
 	}
+	.button-add:hover{
+		--color-text: var(--color-purple);
+	}
 	.button-add_icon{
+		width: 1rem;
 		pointer-events: none;
+	}
+	.button-add_icon div{
+		width: 1rem;
 	}
 </style>

@@ -16,17 +16,17 @@
     import InputText from "$lib/form/input-text.svelte";
     import Avatar from "$lib/avatar-header.svelte";
     import ConversationList from "$lib/conversation-list.svelte";
-    import {Client, Conversation, Participant, type CreateConversationOptions, type Paginator} from '@twilio/conversations'
+    import {Client, Conversation, type CreateConversationOptions, type Paginator} from '@twilio/conversations'
     import { rolesSid } from "$utils/roles-sid";
     import type { ConversationInstance } from "twilio/lib/rest/conversations/v1/conversation";
     import { API_HOST } from "$utils/config";
-    import { httpStatusCode } from "$utils/http-status-codes";
     import Spin from "$lib/spin.svelte";
-    import { onMount,beforeUpdate } from "svelte";
+    import { onMount } from "svelte";
     import { user } from "$stores/sessionStore";
 
     import LoaderPage from "$lib/loader-page.svelte";
     import { goto } from "$app/navigation";
+    import {customAlphabet } from 'nanoid'
 
     
     let client:Client;
@@ -39,6 +39,8 @@
     let isLoadingCreate = false;
     let isLoadingJoin = false;
     let loading = true;
+
+    const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',10)
 
     onMount(async()=>{
         loading = true;
@@ -65,15 +67,7 @@
 
         const conversationPaginator:Paginator<Conversation> = await client.getSubscribedConversations()
 
-        sortedConversations = conversationPaginator.items.sort((a, b) => {
-            if(a.createdBy === $user.id && b.createdBy === $user.id){
-                return 0
-            }
-            if(a.createdBy === $user.id) return -1
-            if(b.createdBy === $user.id) return 1
-            return 0
-        })
-
+        sortedConversations = conversationPaginator.items;
         
         loading = false;
     })
@@ -84,7 +78,9 @@
         console.log("handleCreate")
         event.preventDefault()
         
-        const convUniqueName = crypto.randomUUID();
+        const convUniqueName = nanoid()
+
+  
 
         if($user.id == null || $user.id == ""){
             isLoadingCreate = false;
@@ -175,7 +171,7 @@
     <header class="header">
         <div class="header_container">
             <div class="header_menu">
-                <ConversationList list={sortedConversations} userId={$user.id}></ConversationList>
+                <ConversationList list={sortedConversations}></ConversationList>
             </div>
             <Avatar
                 userName={$user.name}

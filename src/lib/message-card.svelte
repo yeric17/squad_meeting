@@ -6,7 +6,11 @@
     import { createEventDispatcher } from "svelte";
 
     import ExcelIcon from "./svg/excel-icon.svelte";
-import Avatar from "./avatar.svelte";
+    import Avatar from "./avatar.svelte";
+    import ReplyIcon from "./svg/reply-icon.svelte";
+    import { replyMessage } from "$stores/messages";
+import { supabase } from "./supabase";
+
 
     // import ReplyMessageIcon from "./svg/reply-message-icon.svelte";
     // import TrashIcon from "./svg/trash-icon.svelte";
@@ -14,7 +18,6 @@ import Avatar from "./avatar.svelte";
     export let message:Message;
     export let showDate:boolean = true;
     export let showName:boolean = false;
-    export let showAdminOptions:boolean = false;
 
     let hasMedia = false;
     let messageMediaURL:string = "";
@@ -59,9 +62,14 @@ import Avatar from "./avatar.svelte";
         isRemoved = true;
     }
 
-    function handleReply(){
-        console.log('reply from message')
-        dispacher('reply', message)
+    async function handleReply(){
+        const {data, error} = await supabase.from('profiles').select('user_name').eq('id',message.author).single()
+        if(error) throw error;
+        replyMessage.set({
+            body: message.body,
+            name: data.user_name,
+            sid: message.sid
+        })
     }
     function getFormatDate(value:Date){
         return value.toLocaleString("es-Es",{
@@ -117,8 +125,7 @@ import Avatar from "./avatar.svelte";
             {/if}
             <div class="body_menu">
                 <ul class="body_menu_list">
-                    <li class="menu_option" on:click={handleReply}>responder</li>
-                   {#if showAdminOptions} <li class="menu_option" on:click={handleDelete}>eliminar</li>{/if}
+                    <li class="menu_option" on:click={handleReply}><ReplyIcon/></li>
                 </ul>
             </div>
         </div>
@@ -195,33 +202,37 @@ import Avatar from "./avatar.svelte";
         display: flex;
         flex-direction: column;
         top: 0;
-        right: 0;
-        transform: translateX(100%);
+        left: 0;
+        transform: translateY(-100%);
         border-radius: 4px;
         display: none;
-        width: 80px;
         z-index: 100;
         overflow: hidden;
     }
     .message_content.my-message .body_menu{
-        left: 0;
-        transform: translateX(-100%);
+        left: 100%;
+        transform: translateX(-100%) translateY(-100%);
     }
     .message_body:hover .body_menu{
         display: flex;
     }
     .body_menu_list{
         background-color: var(--color-gray-6);
+        display: flex;
     }
     .menu_option{
         padding: .25rem;
         color: var(--color-gray-1);
         cursor: pointer;
         display: flex;
-        width: auto;
+        align-items: center;
+        justify-content: center;
+        width: 1.6rem;
+        height: 1.6rem;
+        --color-text: var(--color-gray-2);
     }
     .menu_option:hover{
-        background-color: var(--color-gray-4);
+        background-color: var(--color-gray-5);
     }
     .body_media img{
         display: block;

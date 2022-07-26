@@ -5,6 +5,9 @@
 </svg>
 
 <style>
+    svg{
+        width: 100%;
+    }
     path{
         fill: var(--color-text);
     }

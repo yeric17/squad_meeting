@@ -6,7 +6,7 @@
 
 <section class="notifications">
     {#if $notifications.length > 0}
-        {#each $notifications as notification}
+        {#each $notifications as notification, idx (idx)}
             <Notification notification={notification}/>
         {/each}
     {/if}

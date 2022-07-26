@@ -1,4 +1,4 @@
-import type { Message } from "@twilio/conversations";
+import type{ Message } from "@twilio/conversations";
 import { writable } from "svelte/store";
 
 let newMessageList:Message[] = []
@@ -13,3 +13,7 @@ export const addMessageToList = (message:Message) => {
         return newValue
     })
 }
+
+let newReplyMessage:any = null;
+
+export const replyMessage = writable(newReplyMessage)

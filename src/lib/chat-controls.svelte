@@ -12,7 +12,7 @@
     import {slide} from 'svelte/transition'
     import { supabase } from './supabase';
     import { onMount } from 'svelte';
-    import { addMessageToList } from '../stores/messages';
+    import { addMessageToList, replyMessage } from '../stores/messages';
 	import { user } from '$stores/sessionStore';
 	import { chatCurrentState } from '$stores/chat-state';
     
@@ -20,15 +20,12 @@
     export let replyAttributes: any | null = null;
     let textInput = '';
     let typingUser: any = null;
-    let replyMessage: Message | null = null;
     let emoticonsIsActive = false;
 	let atachmentIsActive = false;
 	let inputChat:HTMLInputElement|null = null;
 
     onMount(() => {
-
 		inputChat = document.getElementById('chatMessage') as HTMLInputElement
-
 		$activeConversation.on('typingStarted', async (participant) => {
 			let { data } = await supabase
 				.from('profiles')
@@ -62,13 +59,13 @@
 					name: $user.name,
 					avatar_url: $user.avatar,
 					reply: {
-						body: replyMessage.body,
-						sid: replyMessage.sid
+						body: $replyMessage.body,
+						sid: $replyMessage.sid
 					}
 				})
 			);
 		}
-		replyMessage = null;
+		replyMessage.set(null);
 		textInput = '';
 	}
 
@@ -110,13 +107,13 @@
         </div>
     {/if}
     <form on:submit={handleSubmit} class="chat_form_text">
-        {#if replyMessage}
+        {#if $replyMessage}
             <div class="reply_info">
                 <span class="reply_user-name">
-                    {replyAttributes.name}
+                    {$replyMessage.name}
                 </span>
                 <span class="reply_body">
-                    {replyMessage.body}
+                    {$replyMessage.body}
                 </span>
             </div>
         {/if}
@@ -255,11 +252,14 @@
 		color: var(--color-gray-4);
 	}
 	.reply_body {
-		display: inline-flex;
-		max-width: 150px;
-		white-space: nowrap;
-		text-overflow: ellipsis;
+		position: relative;
+		max-width: 80%;
+		display: block;
+		word-wrap: break-word;
 		overflow: hidden;
+		max-height: 3.6em;
+		line-height: 1.2em;
+		text-align:justify;
 		color: var(--color-gray-3);
 	}
 </style>

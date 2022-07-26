@@ -9,15 +9,15 @@ export type AppNotification = {
 
 export type AppNotificationType = 'error' | 'alert' | 'success' | 'info'
 
-
 export const emptyNotifications:AppNotification[] = []
 
 export const notifications = writable(emptyNotifications)
 
 export const addNotification = async function(notification:AppNotification, duration:number = 2000) {
     notifications.update( n =>{
+        notification.message += " " + n.length
         if(n.indexOf(notification) > -1) return n;
-        n.unshift(notification)
+        n = [notification,...n]
         return n
     })
 

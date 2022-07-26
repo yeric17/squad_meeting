@@ -1,10 +1,16 @@
 <script lang="ts">
-import { activeConversation } from "$stores/conversations";
+    import { activeConversation } from "$stores/conversations";
 
     import type { Conversation, JSONObject, Message } from "@twilio/conversations";
     import { onMount,onDestroy } from "svelte";
     import { createEventDispatcher } from "svelte";
     import { supabase } from "./supabase";
+    import LogoutIcon from "./svg/logout-icon.svelte";
+    import TrashIcon from "./svg/trash-icon.svelte";
+    import { clickOutside } from "./click-outside";
+    import { user } from "$stores/sessionStore";
+    import LinkIcon from "./svg/link-icon.svelte";
+import { addNotification } from "$utils/notifications";
 
     export let conversation:Conversation;
 
@@ -12,8 +18,9 @@ import { activeConversation } from "$stores/conversations";
 
     let messageUnread:number|null = null
     let lastMessage:Message|null = null;
-
     let lastMessageAuthor:string|null = null;
+    let showMenu:boolean = false;
+
     onMount(async()=>{
         messageUnread = await conversation.getUnreadMessagesCount()
         
@@ -24,7 +31,6 @@ import { activeConversation } from "$stores/conversations";
         conversation.on('messageAdded', async(message)=>{
             lastMessage = message;
             await updateMessageAuthor()
-            messageUnread = await conversation.getUnreadMessagesCount()
         })
     })
 
@@ -39,11 +45,46 @@ import { activeConversation } from "$stores/conversations";
         if(data){
             lastMessageAuthor = data[0].user_name
         }
+        messageUnread = await conversation.getUnreadMessagesCount()
+        if(messageUnread == null) return;
     }
 
     function clickOnLink(){
         displacher('click')
     }
+
+    function handleClickOutside(){
+        showMenu = false;
+    }
+
+    async function deleteConversation(){
+        await conversation.delete()
+        addNotification({
+            title: "Se Elimino",
+            message: "Ha eliminado la conversación de id: " + conversation.uniqueName,
+            type: 'info'
+        })
+    }
+
+    async function leaveConversation(){
+        await conversation.leave()
+        addNotification({
+            title: "Salio",
+            message: "Ha dejado la conversación exitosamente de id: " + conversation.uniqueName,
+            type: 'info'
+        })
+    }
+
+    async function copyClipboardId() {
+		if (conversation.uniqueName == null) return;
+		await navigator.clipboard.writeText(conversation.uniqueName);
+        addNotification({
+            title: "Valor copiado",
+            message: "Se ha copiado el id: " + conversation.uniqueName,
+            type: "success",
+        })
+	}
+
 
 </script>
 
@@ -73,6 +114,29 @@ import { activeConversation } from "$stores/conversations";
         </span>
         {/if}
     </a>
+    <span class="menu-conversation" use:clickOutside on:click-outside={handleClickOutside}>
+        <ul class="menu-conversation_list" >
+            {#if $user.id !== conversation.createdBy}
+            <li on:click={leaveConversation}>
+            <span>
+                <LogoutIcon/>
+            </span>
+            </li>
+            {/if}
+            {#if $user.id === conversation.createdBy}
+            <li on:click={deleteConversation}>
+                <span>
+                    <TrashIcon/>
+                </span>
+            </li>
+            <li on:click={copyClipboardId}>
+                <span>
+                    <LinkIcon/>
+                </span>
+            </li>
+            {/if}
+        </ul>
+    </span>
 </li>
 
 <style>
@@ -93,12 +157,13 @@ import { activeConversation } from "$stores/conversations";
         border-radius: 5px;
         margin-right: .5rem;
         margin-left: .5rem;
-        border: 1px solid var(--color-green);
+        border: 1px solid var(--color-gray-4);
+        flex-grow: 1;
     }
     
     .side_list_link:hover{
         --color-text: white;
-        background-color: var(--color-blue-gray);
+        background-color: var(--color-sea-blue);
     }
     .item_name{
         font-weight: 500;
@@ -113,7 +178,7 @@ import { activeConversation } from "$stores/conversations";
         transform: translateY(50%);
         width: 1.5rem;
         height: 1.5rem;
-        background-color: var(--color-purple);
+        background-color: var(--color-red);
         color: white;
         display: flex;
         justify-content:center;
@@ -150,5 +215,47 @@ import { activeConversation } from "$stores/conversations";
     }
     .body_author{
         font-weight: 600;
+    }
+    .side_list_item{
+        display: flex;
+        align-items: center;
+    }
+    .menu-conversation{
+        position: relative;
+        display: none;
+        opacity: 0;
+    }
+    .side_list_item:hover .menu-conversation{
+        display: block;
+        opacity: 1;
+    }
+    .menu-conversation_list{
+        position: absolute;
+        display: flex;
+        top: 50%;
+        right: 1rem;
+        transform: translateY(-50%);
+        background-color: rgba(255,255,255,.9);
+        border: 1px solid var(--color-gray-5);
+        border-radius: 5px;
+    }
+    .menu-conversation_list li{
+        width: 1.8rem;
+        height: 1.8rem;
+        padding: .4rem;
+        cursor: pointer;
+        --color-text: var(--color-gray-3);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .menu-conversation_list li>span{
+        pointer-events: none;
+    }
+    .menu-conversation_list li:not(:first-child){
+        border-left: 1px solid var(--color-gray-4);
+    }
+    .menu-conversation_list li:hover{
+        --color-text: var(--color-purple);
     }
 </style>

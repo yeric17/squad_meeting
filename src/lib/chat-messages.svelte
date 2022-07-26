@@ -62,10 +62,6 @@ import { user } from "$stores/sessionStore";
     }
 
 
-    function handleReply(event:CustomEvent){
-        console.log('reply from message')
-        dispacher('reply',event.detail)
-    }
 </script>
     <section class="chat_messages" id="chatMessages" on:scroll={scrollHandler}>
         <div class="chat_message_wrapper">
@@ -75,9 +71,7 @@ import { user } from "$stores/sessionStore";
                     showName={(idx > 0 && message.author !== $messageList[idx - 1].author) || idx === 0}
                     showDate={(idx > 0 && isDateEqual($messageList[idx - 1].dateCreated,message.dateCreated)) || idx === 0}
                     isMine={$user.id === message.author}
-                    message={message}
-                    showAdminOptions={$user.id === $activeConversation.createdBy}
-                    on:reply={handleReply}/>
+                    message={message}/>
                 </div>
                 {/each}
                 <span id="bottom_chat"></span>

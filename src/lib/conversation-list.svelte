@@ -6,11 +6,25 @@
     import Spin from "./spin.svelte";
     import { clickOutside } from "./click-outside";
     import ConversationCard from "./conversation-card.svelte";
+import { onMount } from "svelte";
+import { user } from "$stores/sessionStore";
 
     export let list:Conversation[] = [];
-    export let userId:string = "";
+
+    let myConversations:Conversation[] = []
+    let conversations:Conversation[] = []
+
     let showList = false;
     let isLoading = false;
+    let hasMessageUnread = false;
+
+    onMount(async ()=>{
+
+
+        myConversations = list.filter(c => c.createdBy === $user.id)
+        conversations = list.filter(c => c.createdBy !== $user.id)
+    })
+
     function clickOnLink(){
         isLoading = true;
     }
@@ -31,24 +45,38 @@
     {#if showList}
     <div class="side_container_list" in:fly={{x:-100}}>
         <div class="side_list_header">
-            <span>Listado de conversaciones</span>
+            <span class="side_list_title">Listado de conversaciones</span>
             {#if isLoading}
-            <Spin/>
+            <span class="side_list_spin">
+                <Spin/>
+            </span>
             {/if}
             <button class="button_close" on:click={toggleMenu}><CloseIcon></CloseIcon></button>
         </div>
         <ul class="side_list">
-            {#each list as conv, idx (conv.sid)}
-                {#if idx === 0}
-                    <span class="side_list_section">Mis Conversaciones</span>
-                {/if}
-                {#if idx > 0 && conv.createdBy !== userId && list[idx - 1].createdBy === userId}
-                    <span class="side_list_section">Compartidas</span>
-                {/if}
+            {#if myConversations.length > 0}
+                <li class="side_list_item side_list_section">Mis Conversaciones</li>
+                {#each myConversations as conv, idx (conv.sid)}
+                <li class="side_list_item">
                     <ConversationCard conversation={conv}/>
+                </li>
                 {/each}
+            {/if}
+            {#if conversations.length > 0}
+                <li class="side_list_item side_list_section">Compartidas</li>
+                {#each conversations as conv, idx (conv.sid)}
+                <li class="side_list_item">
+                    <ConversationCard conversation={conv}/>
+                </li>
+                {/each}
+            {/if}
         </ul>
     </div>
+    {/if}
+    {#if hasMessageUnread}
+    <span class="side_menu-indicator">
+
+    </span>
     {/if}
 </div>
 
@@ -66,7 +94,7 @@
         justify-content: space-between;
         padding: .5rem;
         
-        background-color: var(--color-sea-blue);
+        background-color: var(--color-blue-gray);
         color:white;
         height: 50px;
         align-items: center;
@@ -80,13 +108,18 @@
         top: 0;
         left: 0;
         height: 100vh;
-        background-color: var(--color-gray-6);
+        background-color: white;
         z-index: 100;
+        box-shadow: 1px .5px 4px 1px rgba(0, 0, 0,.4);
+       
     }
     .side_list{
         display: flex;
         flex-direction: column;
-        gap:.5rem;
+        gap: 1rem;
+        overflow-y: scroll;
+        overflow-x: auto;
+        padding-bottom: 1rem;
     }
    
     .button_close{
@@ -105,12 +138,29 @@
     }
     .side_list_section{
         padding-left: .5rem;
+        color: var(--color-gray-2);
         display: block;
         padding-top: .5rem;
         padding-bottom: .5rem;
         font-weight: 600;
+        color: var(--color-sea-blue);
     }
-    .side_list_section:nth-of-type(2){
+    .side_list_section:not(:first-child){
         border-top: 1px solid var(--color-gray-4);
+    }
+    .side_menu-indicator{
+        position: absolute;
+        display: block;
+        top: 0;
+        right: 0;
+        transform: translate(50%,-50%);
+        width: 10px;
+        height: 10px;
+        background-color: var(--color-red);
+        border-radius: 4px;
+    }
+    .side_list_title{
+        display: flex;
+        flex-grow: 1;
     }
 </style>
