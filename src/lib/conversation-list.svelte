@@ -6,8 +6,8 @@
     import Spin from "./spin.svelte";
     import { clickOutside } from "./click-outside";
     import ConversationCard from "./conversation-card.svelte";
-import { onMount } from "svelte";
-import { user } from "$stores/sessionStore";
+    import { onMount } from "svelte";
+    import { user } from "$stores/sessionStore";
 
     export let list:Conversation[] = [];
 
@@ -25,9 +25,6 @@ import { user } from "$stores/sessionStore";
         conversations = list.filter(c => c.createdBy !== $user.id)
     })
 
-    function clickOnLink(){
-        isLoading = true;
-    }
     function toggleMenu(){
         showList = !showList;
     }

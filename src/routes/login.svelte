@@ -1,5 +1,4 @@
 <script lang="ts">
-    //import { goto } from '$app/navigation';
 
     // components
     import SquadMeetingText from '$lib/svg/squad-meeting-text.svelte';
@@ -7,28 +6,22 @@
     import InputEmail from "$lib/form/input-email.svelte";
     import InputPassword from "$lib/form/input-password.svelte";
     import Spin from '$lib/spin.svelte';
-    import { httpStatusCode } from '$utils/http-status-codes';
     import { supabase } from '$lib/supabase';
     import { API_HOST } from '$utils/config';
     import { user } from '$stores/sessionStore';
-    import { afterUpdate, beforeUpdate, onMount } from 'svelte';
+    import { onMount } from 'svelte';
     import { goto } from '$app/navigation';
-    //import { goto } from '$app/navigation';
-    //import type { AppUser } from '../stores/user';
 
 
     let isValid = false;
     let isSubmit = false;
     let isLoading = false;
     let errorMessage = "";
-    let loading:boolean = true;
 
     onMount(async()=>{
-        loading = true;
         if($user.logged_in){
             await goto("/")
         }
-        loading = false;
     })
 
     type LoginUser = {

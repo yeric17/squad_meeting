@@ -1,19 +1,15 @@
 <script lang="ts">
     import type { Message } from "@twilio/conversations";
     import { onMount } from "svelte";
-
     import { fade } from "svelte/transition";
-    import { createEventDispatcher } from "svelte";
-
     import ExcelIcon from "./svg/excel-icon.svelte";
     import Avatar from "./avatar.svelte";
     import ReplyIcon from "./svg/reply-icon.svelte";
     import { replyMessage } from "$stores/messages";
-import { supabase } from "./supabase";
+    import { supabase } from "./supabase";
 
 
-    // import ReplyMessageIcon from "./svg/reply-message-icon.svelte";
-    // import TrashIcon from "./svg/trash-icon.svelte";
+
     export let isMine:boolean = true;
     export let message:Message;
     export let showDate:boolean = true;
@@ -24,10 +20,6 @@ import { supabase } from "./supabase";
     let isImage = false;
     let isExcel = false;
     let isRemoved = false;
-
-    
-
-    const dispacher = createEventDispatcher()
 
     let attributes:any = {
         name: "",
@@ -56,11 +48,6 @@ import { supabase } from "./supabase";
             isExcel = /application\/vnd.openxmlformats-officedocument.spreadsheetml.sheet/.test(contentType)
         }
     })
-
-    async function handleDelete(){
-        await message.remove()
-        isRemoved = true;
-    }
 
     async function handleReply(){
         const {data, error} = await supabase.from('profiles').select('user_name').eq('id',message.author).single()

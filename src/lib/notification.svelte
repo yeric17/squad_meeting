@@ -1,5 +1,5 @@
 <script lang="ts">
-    import type { AppNotification } from "$utils/notifications";
+    import type { AppNotification } from "$utils/types";
     import {fly} from 'svelte/transition'
 import AlertIcon from "./svg/alert-icon.svelte";
 import ErrorIcon from "./svg/error-icon.svelte";

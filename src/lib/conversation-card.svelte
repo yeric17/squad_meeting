@@ -1,16 +1,14 @@
 <script lang="ts">
-    import { activeConversation } from "$stores/conversations";
 
-    import type { Conversation, JSONObject, Message } from "@twilio/conversations";
+    import type { Conversation, Message } from "@twilio/conversations";
     import { onMount,onDestroy } from "svelte";
     import { createEventDispatcher } from "svelte";
     import { supabase } from "./supabase";
     import LogoutIcon from "./svg/logout-icon.svelte";
     import TrashIcon from "./svg/trash-icon.svelte";
-    import { clickOutside } from "./click-outside";
     import { user } from "$stores/sessionStore";
     import LinkIcon from "./svg/link-icon.svelte";
-import { addNotification } from "$utils/notifications";
+    import { addNotification } from "$utils/notifications";
 
     export let conversation:Conversation;
 
@@ -19,7 +17,6 @@ import { addNotification } from "$utils/notifications";
     let messageUnread:number|null = null
     let lastMessage:Message|null = null;
     let lastMessageAuthor:string|null = null;
-    let showMenu:boolean = false;
 
     onMount(async()=>{
         messageUnread = await conversation.getUnreadMessagesCount()
@@ -51,10 +48,6 @@ import { addNotification } from "$utils/notifications";
 
     function clickOnLink(){
         displacher('click')
-    }
-
-    function handleClickOutside(){
-        showMenu = false;
     }
 
     async function deleteConversation(){
@@ -99,7 +92,7 @@ import { addNotification } from "$utils/notifications";
             {/if}
         </span>
         <span class="item_body">
-            {#if lastMessage}
+            {#if lastMessage && lastMessageAuthor}
             <span class="body_author">
                 {lastMessageAuthor}:
             </span>
@@ -114,7 +107,7 @@ import { addNotification } from "$utils/notifications";
         </span>
         {/if}
     </a>
-    <span class="menu-conversation" use:clickOutside on:click-outside={handleClickOutside}>
+    <span class="menu-conversation">
         <ul class="menu-conversation_list" >
             {#if $user.id !== conversation.createdBy}
             <li on:click={leaveConversation}>

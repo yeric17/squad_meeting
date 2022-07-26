@@ -48,24 +48,28 @@
 			if(data)
 			{
 				console.log("exists file")
-				const arrayBuffer = await file.arrayBuffer()
-				const {error: updateError} = await supabase.storage.from('avatars').update(filePath,arrayBuffer,{
-					contentType: file.type
-				})
+				const {error: updateError} = await supabase.storage.from('avatars').update(filePath,file,
+					{
+						upsert: false,
+						cacheControl: '3600'
+					}
+				)
 				if(updateError) throw updateError;
 			}
 			else {
 				console.log("does not exists file")
-				const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file);
+				const { error: uploadError } = await supabase.storage.from('avatars').update(filePath, file);
 				if (uploadError) throw uploadError;
 			}
             
             const {publicURL} = supabase.storage.from('avatars').getPublicUrl(fileName)
 
             if(publicURL){
-                const {error,data} = await supabase.from('profiles').update({
+                const {error} = await supabase.from('profiles').update({
                     avatar_url:publicURL
                 }, {returning:'minimal'}).eq('id',$user.id)
+				if(error) throw new Error("can not update url in profiles");
+				
                 src = publicURL
             } 
 			dispatch('upload');

@@ -4,7 +4,7 @@
     import "$css/variables.css";
     import "$css/buttons.css";
     import "$css/errors.css";
-    import { setUser, user} from "../stores/sessionStore";
+    import { setUser} from "../stores/sessionStore";
     import { supabase } from "$lib/supabase";
     import { onMount } from "svelte";
     import LoaderPage from "$lib/loader-page.svelte";

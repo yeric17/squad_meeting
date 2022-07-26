@@ -48,7 +48,8 @@ export const post: RequestHandler = async ({request}) => {
     })
 
     return {
-        status: 200
+        status: 200,
+        body: JSON.stringify(resTwilio)
     }
 
 }

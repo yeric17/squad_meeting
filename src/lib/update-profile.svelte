@@ -4,13 +4,12 @@
 	import { user } from '$stores/sessionStore';
 	import AvatarUpdate from './avatar-update.svelte';
 	import CloseIcon from './svg/close-icon.svelte';
-import { addNotification } from '$utils/notifications';
+	import { addNotification } from '$utils/notifications';
 
 	export let showProfile = true;
 
 	let loading = true;
 	let username: any = null;
-	let website: any = null;
 	let avatar_url: any = null;
 
 	onMount(async () => {

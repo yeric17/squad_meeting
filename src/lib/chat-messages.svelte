@@ -7,7 +7,7 @@
     import ArrowDownIcon from "./svg/arrow-down-icon.svelte";
     import { activeConversation } from "$stores/conversations";
     import type { Message } from "@twilio/conversations";
-import { user } from "$stores/sessionStore";
+    import { user } from "$stores/sessionStore";
     
 
     const dispacher = createEventDispatcher()
@@ -28,7 +28,6 @@ import { user } from "$stores/sessionStore";
     
     onMount(()=>{
         $activeConversation.on('messageAdded',addMessage)
-        console.log($messageList)
         goBottomChat()
     })
 

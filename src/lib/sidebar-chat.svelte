@@ -1,19 +1,11 @@
 <script lang="ts">
 	import { user } from '$stores/sessionStore';
-	import type { AppUser } from '$stores/user';
-
+	import type { AppUser } from '$utils/types';
 	import { API_HOST } from '$utils/config';
 	import { rolesSid } from '$utils/roles-sid';
-	import { Participant } from '@twilio/conversations';
-
 	import { onMount } from 'svelte';
-	import { getExpectedBodyHash } from 'twilio/lib/webhooks/webhooks';
-
 	import { activeConversation } from '../stores/conversations';
-
 	import { supabaseUsers } from '../stores/participants';
-	import AddUser from './add-user.svelte';
-
 	import ParticipantCard from './participant-card.svelte';
 	import { supabase } from './supabase';
 	import AddIcon from './svg/add-icon.svelte';
@@ -22,15 +14,30 @@
 
 	let showUsers: boolean = false;
 	let showAddUser: boolean = false;
-	let allUsers: any[] = [];
+	let allUsers: AppUser[] = [];
 
 	onMount(async () => {
 		const response = await fetch(API_HOST + '/twilio-users');
 		if (response.ok) {
 			let data = await response.json();
-			allUsers = data.body.filter((item: any) => {
+			let tempUsers = data.body.filter((item:any) => {
 				return !$supabaseUsers.some((supaUser) => supaUser.id === item.id);
+			}).map((el:any) =>{
+				let newAppUser:AppUser = {
+					id: el.id,
+					name: el.user_name,
+					email: el.email,
+					avatar: el.avatar_url,
+					logged_in: false,
+				}
+				return newAppUser
 			});
+
+			allUsers = tempUsers
+			$supabaseUsers = $supabaseUsers.sort((a:AppUser, b:AppUser)=>{
+				if(a.id === $activeConversation.createdBy && b.id !== $activeConversation.createdBy) return -1;
+				return 0
+			})
 		}
 	});
 
@@ -95,7 +102,7 @@
 		<li class="side-menu_item" class:active={showUsers} on:click={toggleShowUsers}>
 			<UsersIcon />
 		</li>
-		{#if $user.id === $activeConversation.createdBy}
+		{#if $user.id === $activeConversation.createdBy && allUsers.length > 0}
 			<li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}>
 				<UserAddIcon />
 			</li>
@@ -114,7 +121,7 @@
 				{/each}
 			</ul>
 		{/if}
-		{#if showAddUser}
+		{#if showAddUser && allUsers.length > 0}
 			<ul class="side-menu_sub_users">
 				{#each allUsers as item, idx (item.id)}
 					<li class="sub_user sub_user-action">

@@ -7,23 +7,8 @@
     import type { Load } from '@sveltejs/kit';
     
 
-    export const load:Load = async ({session}) => {
-        // console.log(session)
-        // const currentSession:any = session;
+    export const load:Load = async () => {
 
-        // const user = currentSession.user
-
-        // if(user == null){
-        //     return{
-        //         status: 200,
-        //     }
-        // }
-        // if(user.logged_in){
-        //     return {
-        //         status: httpStatusCode.Found,
-        //         redirect: "/",
-        //     }
-        // }
         return {
             status:200,
         }
@@ -38,9 +23,8 @@
     import InputEmail from "$lib/form/input-email.svelte";
     import InputPassword from "$lib/form/input-password.svelte";
     import InputText from "$lib/form/input-text.svelte";
-    //import { goto } from '$app/navigation';
     import { API_HOST } from '../utils/config';
-    import { httpStatusCode } from '../utils/http-status-codes';
+    import { addNotification } from '$utils/notifications';
 
 
 
@@ -80,7 +64,20 @@
         })
 
         if(response.ok){
-            window.location.href = `/login`
+            addNotification({
+                title: "Usuario creado",
+                message: "Se ha creado el usuario: " + registerUser.name,
+                type: "success"
+            },3000)
+            addNotification({
+                title: "Confirmar email",
+                message: "Hemos enviado un correo a : " + registerUser.email + " para que confirme esta cuenta",
+                type: "alert"
+            },6000)
+
+            setTimeout(()=>{
+                window.location.href = `/login`
+            },9000)
         }
         else {
             isValid = false;

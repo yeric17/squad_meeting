@@ -1,13 +1,5 @@
+import type { AppUser } from "$utils/types";
 import { writable} from "svelte/store"
-
-export type AppUser = {
-    id: string,
-    name: string,
-    email: string,
-    avatar: string,
-    logged_in: boolean
-}
-
 
 let defaultAppUser:AppUser = {
     id: "",

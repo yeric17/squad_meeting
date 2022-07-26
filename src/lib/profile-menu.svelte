@@ -2,9 +2,8 @@
 	import LogoutIcon from './svg/logout-icon.svelte';
 	import UserSquareIcon from './svg/user-square-icon.svelte';
 	import { fade } from 'svelte/transition';
-	import { API_HOST } from '../utils/config';
 	import { supabase } from './supabase';
-import UpdateProfile from './update-profile.svelte';
+	import UpdateProfile from './update-profile.svelte';
 	export let showMenu = false;
 	export let showProfile = false;
 

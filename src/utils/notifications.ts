@@ -1,13 +1,6 @@
 import { writable } from "svelte/store"
+import type { AppNotification } from "./types"
 
-
-export type AppNotification = {
-    title:string,
-    message:string,
-    type:AppNotificationType
-}
-
-export type AppNotificationType = 'error' | 'alert' | 'success' | 'info'
 
 export const emptyNotifications:AppNotification[] = []
 

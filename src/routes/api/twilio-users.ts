@@ -3,7 +3,6 @@ import { httpStatusCode } from "../../utils/http-status-codes";
 import type { UserListInstanceCreateOptions } from "twilio/lib/rest/conversations/v1/user";
 import { twilioClient, TWILIO_SERVICE_SID } from "../../lib/twilio-client";
 import { rolesSid } from "../../utils/roles-sid";
-import type { AppUser } from "$stores/user";
 import { supabase } from "$lib/supabase";
 
 

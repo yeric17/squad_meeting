@@ -1,7 +1,7 @@
 import { supabase } from "$lib/supabase";
 import type { User } from "@supabase/supabase-js";
 import { writable } from "svelte/store";
-import type {AppUser} from "./user";
+import type {AppUser} from "$utils/types";
 
 let newAppUser:AppUser = {
     id: "",
