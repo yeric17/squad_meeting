@@ -1,146 +1,142 @@
 <script lang="ts">
-import { user } from '$stores/sessionStore';
-import type { AppUser } from '$stores/user';
+	import { user } from '$stores/sessionStore';
+	import type { AppUser } from '$stores/user';
 
-import { API_HOST } from '$utils/config';
-import { rolesSid } from '$utils/roles-sid';
-import { Participant } from '@twilio/conversations';
+	import { API_HOST } from '$utils/config';
+	import { rolesSid } from '$utils/roles-sid';
+	import { Participant } from '@twilio/conversations';
 
 	import { onMount } from 'svelte';
-import { getExpectedBodyHash } from 'twilio/lib/webhooks/webhooks';
-
+	import { getExpectedBodyHash } from 'twilio/lib/webhooks/webhooks';
 
 	import { activeConversation } from '../stores/conversations';
 
-    import { supabaseUsers } from '../stores/participants';
-import AddUser from './add-user.svelte';
+	import { supabaseUsers } from '../stores/participants';
+	import AddUser from './add-user.svelte';
 
-    import ParticipantCard from './participant-card.svelte';
-import { supabase } from './supabase';
-import AddIcon from './svg/add-icon.svelte';
+	import ParticipantCard from './participant-card.svelte';
+	import { supabase } from './supabase';
+	import AddIcon from './svg/add-icon.svelte';
 	import UserAddIcon from './svg/user-add-icon.svelte';
-    import UsersIcon from './svg/users-icon.svelte';
-    
+	import UsersIcon from './svg/users-icon.svelte';
 
-    let showUsers:boolean = false;
-    let showAddUser:boolean = false;
-	let allUsers:any[]=[]
-	let loading = false;
+	let showUsers: boolean = false;
+	let showAddUser: boolean = false;
+	let allUsers: any[] = [];
 
-	onMount(async()=>{
-		const response = await fetch(API_HOST + "/twilio-users")
-		if(response.ok){
-			let data = await response.json()
-			allUsers = data.body.filter((item:any) => {
-				return !$supabaseUsers.some(supaUser => supaUser.id === item.id)
+	onMount(async () => {
+		const response = await fetch(API_HOST + '/twilio-users');
+		if (response.ok) {
+			let data = await response.json();
+			allUsers = data.body.filter((item: any) => {
+				return !$supabaseUsers.some((supaUser) => supaUser.id === item.id);
 			});
-			
 		}
-	})
+	});
 
-    function toggleShowUsers() {
+	function toggleShowUsers() {
 		showUsers = !showUsers;
 		if (showUsers) {
 			showAddUser = false;
 		}
 	}
 
-	function toggleShowAddUsers(){
+	function toggleShowAddUsers() {
 		showAddUser = !showAddUser;
 		if (showAddUser) {
 			showUsers = false;
 		}
 	}
 
-	async function addUser(event:Event){
-		loading = true;
-		event.preventDefault()
-		event.stopPropagation()
-		const target = event.target as HTMLElement
-		const userId = target.dataset.userid
-		if(userId == null){
-			loading = false;
-			return
+	async function addUser(event: Event) {
+		event.preventDefault();
+		event.stopPropagation();
+		const target = event.target as HTMLElement;
+		const userId = target.dataset.userid;
+		if (userId == null) {
+			return;
 		}
 
-		const response = await fetch(`${API_HOST}/participants`, 
-		{
+		const response = await fetch(`${API_HOST}/participants`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				participant:{
+				participant: {
 					identity: userId,
 					roleSid: rolesSid.channelUser
 				},
 				conversationSid: $activeConversation.sid
 			})
-		})
+		});
 
-		if(response.ok){
-			const {data} = await supabase.from('profiles').select().eq('id',userId).single()
+		if (response.ok) {
+			const { data } = await supabase.from('profiles').select().eq('id', userId).single();
 
-			console.log(data)
-			const newUser:AppUser = {
+			const newUser: AppUser = {
 				id: data.id,
 				name: data.user_name,
 				email: data.email,
 				avatar: data.avatar_url,
-				logged_in: false,
-			}
-			supabaseUsers.set([...$supabaseUsers,newUser])
-			allUsers = allUsers.filter(u=>{
-				return u.id !== userId
-			})
+				logged_in: false
+			};
+			supabaseUsers.set([...$supabaseUsers, newUser]);
+			allUsers = allUsers.filter((u) => {
+				return u.id !== userId;
+			});
 		}
 
-		loading = false;
-
 	}
-
 </script>
 
 <section class="side-menu_chat">
-    <ul class="side-menu_list">
-        <li class="side-menu_item" class:active={showUsers} on:click={toggleShowUsers}>
-            <UsersIcon />
-        </li>
-        <li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}><UserAddIcon/></li>
-    </ul>
-    <div class="side-menu_sub" class:active={showUsers || showAddUser}>
-        {#if showUsers}
+	<ul class="side-menu_list">
+		<li class="side-menu_item" class:active={showUsers} on:click={toggleShowUsers}>
+			<UsersIcon />
+		</li>
+		{#if $user.id === $activeConversation.createdBy}
+			<li class="side-menu_item" class:active={showAddUser} on:click={toggleShowAddUsers}>
+				<UserAddIcon />
+			</li>
+		{/if}
+	</ul>
+	<div class="side-menu_sub" class:active={showUsers || showAddUser}>
+		{#if showUsers}
 			<ul class="side-menu_sub_users">
 				{#each $supabaseUsers as participant, idx (participant.id)}
 					<li class="sub_user">
-							<ParticipantCard {participant} isOwner={participant.id === $activeConversation.createdBy} />
+						<ParticipantCard
+							{participant}
+							isOwner={participant.id === $activeConversation.createdBy}
+						/>
 					</li>
 				{/each}
-        	</ul>
-        {/if}
-        {#if showAddUser}
+			</ul>
+		{/if}
+		{#if showAddUser}
 			<ul class="side-menu_sub_users">
-				{#each allUsers as item,idx (item.id)}
+				{#each allUsers as item, idx (item.id)}
 					<li class="sub_user sub_user-action">
 						<span class="car-wrappper">
-							<ParticipantCard participant={item}></ParticipantCard>
+							<ParticipantCard participant={item} />
 						</span>
 						<button class="button-add" data-userid={item.id} on:click={addUser}>
 							<span class="button-add_icon">
 								<div>
-									<AddIcon/>
+									<AddIcon />
 								</div>
 							</span>
 						</button>
 					</li>
 				{/each}
 			</ul>
-        {/if}
-    </div>
+		{/if}
+	</div>
 </section>
 
 <style>
-    .side-menu_chat {
+	.side-menu_chat {
 		grid-row: span 3;
 		background-color: var(--color-gray-6);
 		display: grid;
@@ -180,38 +176,38 @@ import AddIcon from './svg/add-icon.svelte';
 		display: block;
 		margin-top: 0.5rem;
 	}
-    .side-menu_list {
+	.side-menu_list {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		padding-top: 1rem;
 		border-right: 1px solid var(--color-gray-5);
 	}
-	.sub_user-action{
+	.sub_user-action {
 		display: flex;
-		gap: .5rem;
+		gap: 0.5rem;
 	}
-	.car-wrappper{
+	.car-wrappper {
 		flex-grow: 1;
 	}
-	.button-add{
+	.button-add {
 		cursor: pointer;
 		border: none;
-		font-size: .8rem;
+		font-size: 0.8rem;
 		--color-text: var(--color-gray-3);
-		
-		color:white;
-		padding: .5rem;
+
+		color: white;
+		padding: 0.5rem;
 		border-radius: 5px;
 	}
-	.button-add:hover{
+	.button-add:hover {
 		--color-text: var(--color-purple);
 	}
-	.button-add_icon{
+	.button-add_icon {
 		width: 1rem;
 		pointer-events: none;
 	}
-	.button-add_icon div{
+	.button-add_icon div {
 		width: 1rem;
 	}
 </style>

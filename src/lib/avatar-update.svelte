@@ -17,8 +17,12 @@
 		if (session == null) return;
 		let pathArray = $user.avatar.split('/');
 		path = pathArray[pathArray.length - 1];
-		const { data } = await supabase.storage.from('avatars').download(path);
+		const { data, error } = await supabase.storage.from('avatars').download(path);
 
+		if(error){
+			src = $user.avatar
+			return;
+		}
 		if (data == null) return;
 		src = URL.createObjectURL(data);
 	});
@@ -37,7 +41,9 @@
 
 			const {error: findError, data} = await supabase.storage.from('avatars').download(fileName)
 			
-			if(findError) throw findError;
+			if(findError){
+				console.log(findError)
+			};
 
 			if(data)
 			{

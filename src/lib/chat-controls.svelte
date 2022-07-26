@@ -5,19 +5,18 @@
     import PaperclipIcon from './svg/paperclip-icon.svelte'
     import EmoticonOption from './emoticon-option.svelte';
     import DropArea from './drop-area.svelte';
-    import type { Message } from '@twilio/conversations';
     import { activeConversation } from '../stores/conversations';
     import { appUser } from '../stores/user';
     import SendIcon from './svg/send-icon.svelte';
     import {slide} from 'svelte/transition'
     import { supabase } from './supabase';
     import { onMount } from 'svelte';
-    import { addMessageToList, replyMessage } from '../stores/messages';
+    import {replyMessage } from '../stores/messages';
 	import { user } from '$stores/sessionStore';
 	import { chatCurrentState } from '$stores/chat-state';
     
     
-    export let replyAttributes: any | null = null;
+    
     let textInput = '';
     let typingUser: any = null;
     let emoticonsIsActive = false;
@@ -44,7 +43,7 @@
 		event.preventDefault();
 		if (textInput === '') return;
 
-		if (replyMessage == null) {
+		if ($replyMessage == null) {
 			await $activeConversation.sendMessage(
 				textInput,
 				JSON.stringify({
