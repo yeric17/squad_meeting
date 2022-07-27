@@ -5,7 +5,7 @@
 	import { rolesSid } from '$utils/roles-sid';
 	import { onMount } from 'svelte';
 	import { activeConversation } from '../stores/conversations';
-	import { supabaseUsers } from '../stores/participants';
+	import { conversationParticipants } from '../stores/participants';
 	import ParticipantCard from './participant-card.svelte';
 	import { supabase } from './supabase';
 	import AddIcon from './svg/add-icon.svelte';
@@ -21,7 +21,7 @@
 		if (response.ok) {
 			let data = await response.json();
 			let tempUsers = data.body.filter((item:any) => {
-				return !$supabaseUsers.some((supaUser) => supaUser.id === item.id);
+				return !$conversationParticipants.some((supaUser) => supaUser.id === item.id);
 			}).map((el:any) =>{
 				let newAppUser:AppUser = {
 					id: el.id,
@@ -34,7 +34,7 @@
 			});
 
 			allUsers = tempUsers
-			$supabaseUsers = $supabaseUsers.sort((a:AppUser, b:AppUser)=>{
+			$conversationParticipants = $conversationParticipants.sort((a:AppUser, b:AppUser)=>{
 				if(a.id === $activeConversation.createdBy && b.id !== $activeConversation.createdBy) return -1;
 				return 0
 			})
@@ -88,7 +88,7 @@
 				avatar: data.avatar_url,
 				logged_in: false
 			};
-			supabaseUsers.set([...$supabaseUsers, newUser]);
+			conversationParticipants.set([...$conversationParticipants, newUser]);
 			allUsers = allUsers.filter((u) => {
 				return u.id !== userId;
 			});
@@ -111,7 +111,7 @@
 	<div class="side-menu_sub" class:active={showUsers || showAddUser}>
 		{#if showUsers}
 			<ul class="side-menu_sub_users">
-				{#each $supabaseUsers as participant, idx (participant.id)}
+				{#each $conversationParticipants as participant, idx (participant.id)}
 					<li class="sub_user">
 						<ParticipantCard
 							{participant}

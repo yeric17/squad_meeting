@@ -14,6 +14,13 @@ export const addMessageToList = (message:Message) => {
     })
 }
 
+export const addMessagesToList = (messages:Message[]) => {
+    messageList.update(value =>{
+        let newValue = [...value, ...messages]
+        return newValue
+    })
+}
+
 let newReplyMessage:any = null;
 
 export const replyMessage = writable(newReplyMessage)

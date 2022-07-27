@@ -1,17 +1,18 @@
 
 <script lang="ts">
-    import { addMessageToList, messageList } from "../stores/messages";
-    import { createEventDispatcher, onDestroy, onMount } from "svelte";
+    import { addMessagesToList, addMessageToList, messageList } from "../stores/messages";
+    import {onDestroy, onMount } from "svelte";
     import { fly } from "svelte/transition";
     import MessageCard from "./message-card.svelte";
     import ArrowDownIcon from "./svg/arrow-down-icon.svelte";
     import { activeConversation } from "$stores/conversations";
-    import type { Message } from "@twilio/conversations";
+    import type { Message, Paginator } from "@twilio/conversations";
     import { user } from "$stores/sessionStore";
+    import { getMessagePaginator } from "../services/fetch-messages";
     
 
-    const dispacher = createEventDispatcher()
-
+    let messagesPaginator = {} as Paginator<Message>
+    let isLoadingMessages = false; 
     let showToBottomBtn = false;
     export let isTopChat = false;
 
@@ -26,7 +27,11 @@
         return Math.abs(timeNumber1 - timeNumber2) === 0 && diff < 120000
     }
     
-    onMount(()=>{
+    onMount(async ()=>{
+        messagesPaginator = await getMessagePaginator($activeConversation,30)
+	
+        messageList.set(messagesPaginator.items)    
+
         $activeConversation.on('messageAdded',addMessage)
         goBottomChat()
     })
@@ -49,7 +54,7 @@
         dummyAnchor.click()
     }
 
-    function scrollHandler(event:Event) {
+    async function scrollHandler(event:Event) {
         let node = event.target as HTMLElement
         
         const maxScrollTop = (node.scrollHeight - node.offsetHeight)
@@ -57,7 +62,17 @@
 
         showToBottomBtn = diff  > 100
         isTopChat = node.scrollTop < 1;
-        dispacher('scroll', event)
+        
+        await updateMessages()
+    }
+
+    async function updateMessages(){
+        if (isTopChat && !isLoadingMessages && messagesPaginator.hasPrevPage) {
+			isLoadingMessages = true;
+			messagesPaginator = await messagesPaginator.prevPage();
+			addMessagesToList(messagesPaginator.items)
+			isLoadingMessages = false;
+		}
     }
 
 

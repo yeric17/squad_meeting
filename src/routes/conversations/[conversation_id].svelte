@@ -15,91 +15,51 @@
 </script>
 
 <script lang="ts">
-	import {
-		Client,
-		Message,
-		Participant,
-		type ConversationStatus,
-		type Paginator
-	} from '@twilio/conversations';
 	import { onDestroy, onMount } from 'svelte';
-	import { API_HOST } from '$utils/config';
 	import ChatMessages from '$lib/chat-messages.svelte';
     import { activeConversation } from '$stores/conversations';
     import ConversationHeader from '$lib/conversation-header.svelte';
     import SidebarChat from '$lib/sidebar-chat.svelte';
     import ChatControls from '$lib/chat-controls.svelte';
-    import {messageList} from '$stores/messages';
 	import { user } from '$stores/sessionStore';
 
 	import LoaderPage from "$lib/loader-page.svelte";
-	import { setParticipants } from '$stores/participants';
+	import { conversationParticipants, setParticipants } from '$stores/participants';
 	import { getParticipants } from '../../services/fetch-participants';
+	import { getConversation } from '../../services/get-conversation';
 
 	export let conversationId:string = "";
-	
-	let messagesPaginator: Paginator<Message>;
-	let isTopChat = false;
-	let isLoadingMessages = false;
+
 	let loading = true;
 
 	
 	onMount(async()=>{
 		loading = true;
 		try{
-			 
-
-			const accesTokenResponse = await fetch(`${API_HOST}/access-token?identity=${$user.id}`);
-			if (!accesTokenResponse.ok) {
-				console.log('Error on get Access Token');
-			}
 	
-			const accesToken = await accesTokenResponse.text();
-	
-			const client = new Client(accesToken);
-
-			const conversation = await client.getConversationBySid(conversationId)
+			const conversation = await getConversation($user.id,conversationId)
 
 			activeConversation.set(conversation)
 
 			await $activeConversation.setAllMessagesRead()
-
-			const participants: Participant[] = await $activeConversation.getParticipants();
-
-			let participant = participants.find(par=>par.identity === $user.id)
 	
-			if(participant != undefined ){
+			const users = await getParticipants($activeConversation)
+			
+			setParticipants(users)
+			
+			if($conversationParticipants.length > 0){
+				const participant = users.find( u => u.id === $user.id)?.participant
 				user.update(value=>{
 					value.participant = participant
 					return value
 				})
 			}
-			
 	
-			const users = await getParticipants($activeConversation)
-	
-			setParticipants(users)
-			
-	
-			let paginator: Paginator<Message> = await $activeConversation.getMessages(
-				20,
-				undefined,
-				'backwards'
-			);
-	
-			messagesPaginator = paginator;
-	
-			let messagesItems = messagesPaginator.items;
-	
-			messageList.set(messagesItems)
-	
-			const status: ConversationStatus = $activeConversation.status;
-	
-			if (status !== 'joined') {
+			if ($activeConversation.status !== 'joined') {
 				await $activeConversation.join();
 			}
 
-			if($user.participant){
+			if($user.participant !== undefined){
 				$activeConversation.emit('participantJoined',$user.participant)
 				$user.participant.updateAttributes({
 					status:'online'
@@ -128,16 +88,6 @@
 		})
 	})
 
-	async function handleChatScroll() {
-		if (isTopChat && !isLoadingMessages && messagesPaginator.hasPrevPage) {
-			isLoadingMessages = true;
-			messagesPaginator = await messagesPaginator.prevPage();
-			messageList.set([...messagesPaginator.items, ...$messageList]);
-			isLoadingMessages = false;
-		}
-	}
-
-
 </script>
 
 <svelte:head>
@@ -151,10 +101,7 @@
 	{:else}
 	<ConversationHeader/>
 	<SidebarChat/>
-	<ChatMessages
-		bind:isTopChat
-		on:scroll={handleChatScroll}
-	/>
+	<ChatMessages/>
 	<ChatControls/>
 	{/if}
 </div>
