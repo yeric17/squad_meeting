@@ -103,7 +103,7 @@
         </div>
         <div class="login_password">
             <InputPassword bind:value={loginUser.password} bind:isValid={validUser.password} validateInput={false}></InputPassword>
-            
+            <!-- <a href="/forgot-password">Olvide la contraseña</a> -->
         </div>
         {#if !isValid && isSubmit}
             <span class="error-message">

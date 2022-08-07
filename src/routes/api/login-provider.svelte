@@ -5,6 +5,7 @@
 
     import { onMount } from "svelte";
     import type { UserListInstanceCreateOptions } from "twilio/lib/rest/chat/v1/service/user";
+    import LoaderPage from "$lib/loader-page.svelte";
 
 
     //const SUPABASE_JWT = import.meta.env.VITE_PUBLIC_SUPABASE_JWT;
@@ -42,5 +43,5 @@
 </script>
 
 <section>
-    Redirecting
+    <LoaderPage/>
 </section>
